@@ -66,8 +66,8 @@ namespace casadi {
       \date 2010-2011
   */
   class CASADI_EXPORT MX :
-    public SWIG_IF_ELSE(GenericExpressionCommon, GenericExpression<MX>),
-    public SWIG_IF_ELSE(PrintableCommon, Printable<MX>),
+    public GenericExpression<MX>,
+    public Printable<MX>,
     public GenericMatrix<MX>,
     public SharedObject {
   public:
