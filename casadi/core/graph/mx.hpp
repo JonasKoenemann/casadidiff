@@ -80,10 +80,8 @@ namespace casadi {
     /** \brief Create a sparse matrix with all structural zeros */
     MX(casadi_int nrow, casadi_int ncol);
 
-#ifndef SWIG
     /** \brief Create a sparse matrix with all structural zeros */
     explicit MX(const std::pair<casadi_int, casadi_int>& rc);
-#endif // SWIG
 
     /** \brief Create a sparse matrix from a sparsity pattern.
         Same as MX::ones(sparsity)
@@ -99,10 +97,8 @@ namespace casadi {
     /** \brief  Copy constructor */
     MX(const MX& x);
 
-#ifndef SWIG
     /** \brief  Create vector constant (also implicit type conversion) */
     MX(const std::vector<double> &x);
-#endif
 
     /** \brief  Create sparse matrix constant (also implicit type conversion) */
     MX(const Matrix<double> &x);
@@ -112,7 +108,6 @@ namespace casadi {
     ~MX();
 /// \endcond
 
-#ifndef SWIG
 /// \cond INTERNAL
     /** \brief  Create from node */
     static MX create(MXNode* node);
@@ -138,7 +133,6 @@ namespace casadi {
     using B::vertsplit;
     using B::mtimes;
     using B::repmat;
-#endif // SWIG
 
     /// Returns the truth value of an MX expression
     bool __nonzero__() const;
@@ -163,7 +157,6 @@ namespace casadi {
 
     MX operator-() const;
 
-#ifndef SWIG
     /// \cond INTERNAL
     ///@{
     /** \brief  Access a member of the node */
@@ -173,7 +166,6 @@ namespace casadi {
     const MXNode* operator->() const;
     ///@}
     /// \endcond
-#endif // SWIG
 
     /** \brief Get the nth dependency as MX */
     MX dep(casadi_int ch=0) const;
@@ -324,10 +316,8 @@ namespace casadi {
     /** \brief  Identity matrix */
     static MX eye(casadi_int n);
 
-#ifndef SWIG
     /// Get a const pointer to the node
     MXNode* get() const;
-#endif // SWIG
 
     ///@{
     /// Get a submatrix, single argument
@@ -401,7 +391,6 @@ namespace casadi {
       const std::vector<casadi_int>& c);
     ///@}
 
-#ifndef SWIG
     /// \cond CLUTTER
     ///@{
     /// Functions called by friend functions defined for GenericExpression
@@ -529,11 +518,8 @@ namespace casadi {
     ///@}
     /// \endcond
 
-#endif // SWIG
-
     MX printme(const MX& b) const;
 
-#if !defined(SWIG) || defined(DOXYGEN)
 /**
 \ingroup expression_tools
 @{
@@ -638,7 +624,6 @@ namespace casadi {
     }
 
 /** @} */
-#endif // SWIG
 
     /** \brief returns itself, but with an assertion attached
     *
