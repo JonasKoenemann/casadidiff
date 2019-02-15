@@ -57,7 +57,7 @@ namespace casadi {
   */
   class CASADI_EXPORT Function :
     public SharedObject,
-    public SWIG_IF_ELSE(PrintableCommon, Printable<Function>) {
+    public Printable<Function> {
   public:
     /** \brief Get type name */
     static std::string type_name() {return "Function";}
@@ -408,7 +408,6 @@ namespace casadi {
               bool always_inline=false, bool never_inline=false) const;
     ///@}
 
-#ifndef SWIG
     /// Check if same as another function
     bool operator==(const Function& f) const;
 
@@ -496,8 +495,6 @@ namespace casadi {
 
     /** \brief Propagate sparsity backward with temporary memory allocation */
     int rev(std::vector<bvec_t*> arg, std::vector<bvec_t*> res) const;
-
-#endif // SWIG
 
     /** \brief  Evaluate symbolically in parallel and sum (matrix graph)
         \param parallelization Type of parallelization used: unroll|serial|openmp
