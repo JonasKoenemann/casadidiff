@@ -1,23 +1,28 @@
 /*
- *    This file is part of CasADi.
+ *    This program is a derivative work of CasADi.
+ *    The original program has been altered starting from February 15, 2019.
+ *    The license of this file was changed from LGPL to GPL on February 15, 2019.
+ *
+ *    Copyright (C) 2019 Jonas Koenemann
  *
  *    CasADi -- A symbolic framework for dynamic optimization.
  *    Copyright (C) 2010-2014 Joel Andersson, Joris Gillis, Moritz Diehl,
  *                            K.U. Leuven. All rights reserved.
  *    Copyright (C) 2011-2014 Greg Horn
  *
- *    CasADi is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public
  *    License as published by the Free Software Foundation; either
  *    version 3 of the License, or (at your option) any later version.
  *
- *    CasADi is distributed in the hope that it will be useful,
+ *    This program is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ *    General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with CasADi; if not, write to the Free Software
+ *    You should have received a copy of the GNU General Public
+ *    License and GNU Lesser General Public License along with this program;
+ *    if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
@@ -35,7 +40,6 @@
 namespace casadi {
   class SerializingStream;
   class DeserializingStream;
-#if !(defined(SWIG) && !defined(SWIGXML))
 
   /** \brief  Types of options */
   enum TypeID {
@@ -55,23 +59,17 @@ namespace casadi {
     OT_FUNCTIONVECTOR,
     OT_VOIDPTR,
     OT_UNKNOWN};
-#endif // SWIG
 
   /** \brief Generic data type, can hold different types such as bool, casadi_int, string etc.
       \author Joel Andersson
       \date 2010
   */
   class CASADI_EXPORT GenericType
-    : public SWIG_IF_ELSE(PrintableCommon, Printable<GenericType>)
-#if !(defined(SWIG) && !defined(SWIGXML))
-    , public SharedObject
-#endif // SWIG
+    : Printable<GenericType>, public SharedObject
   {
   public:
     /// C++ equivalent of Python's dict or MATLAB's struct
     typedef std::map<std::string, GenericType> Dict;
-
-#if !(defined(SWIG) && !defined(SWIGXML))
 
     /// Default constructor
     GenericType();
@@ -98,23 +96,18 @@ namespace casadi {
     /// Public class name
     static std::string type_name() {return "GenericType";}
 
-#ifndef SWIG
     /// Get a description of a type
     static std::string get_type_description(TypeID type);
-#endif
 
     /// \cond INTERNAL
-#ifndef SWIG
     /** \brief  Create from node */
     static GenericType create(SharedObjectInternal* node);
-#endif // SWIG
     /// \endcond
 
     /// Get a description of the object's type
     std::string get_description() const { return get_type_description(getType()); }
 
     /// Construct a GenericType given an TypeID
-#ifndef SWIG
     static GenericType from_type(TypeID type);
 
     ///@{
@@ -141,12 +134,9 @@ namespace casadi {
 
     bool can_cast_to(TypeID other) const;
     bool can_cast_to(const GenericType& other) const { return can_cast_to(other.getType()) ;}
-#endif
 
-#if !(defined(SWIG) && !defined(SWIGXML))
     // Get type of object
     TypeID getType() const;
-#endif
 
     ///@{
     /** \brief Check if a particular type */
@@ -207,7 +197,6 @@ namespace casadi {
     //! \brief Equality
     bool operator==(const GenericType& op2) const;
     bool operator!=(const GenericType& op2) const;
-#endif // SWIG
 
     /** \brief Serialize an object */
     void serialize(SerializingStream& s) const;
@@ -219,7 +208,6 @@ namespace casadi {
   /// C++ equivalent of Python's dict or MATLAB's struct
   typedef GenericType::Dict Dict;
 
-#ifndef SWIG
   template<class T>
   T get_from_dict(const Dict& d, const std::string& key, const T& default_value) {
     auto it = d.find(key);
@@ -247,15 +235,14 @@ namespace casadi {
     }
   }
 
-  /** \brief Combine two dicts. First has priority 
-   * 
-   * 
+  /** \brief Combine two dicts. First has priority
+   *
+   *
    */
   CASADI_EXPORT Dict combine(const Dict& first, const Dict& second, bool recurse=false);
 
   /** \brief Update the target dictorionary in place with source elements */
   CASADI_EXPORT void update_dict(Dict& target, const Dict& source, bool recurse=false);
-#endif
 
 } // namespace casadi
 
