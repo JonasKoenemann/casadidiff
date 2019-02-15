@@ -489,3 +489,49 @@ if ~is_octave
   assert(~isempty(strfind(msg,'Given a repeated matrix, computes the sum of repeated parts.')))
 end
 
+x = SX.sym('x');
+s = StringSerializer();
+s.pack(x);
+s.pack(sin(x));
+ 
+data = s.encode();
+ 
+s = StringDeserializer(data);
+a = s.unpack();
+b = s.unpack();
+
+a = sparse([1 0 2; 3 0 4]);
+A = DM(a);
+assert(nnz(a(:))==nnz(A(:)));
+assert(full(norm(a(:)-A(:)))==0);
+
+a(:) = 3;
+A(:) = 3;
+assert(nnz(a(:))==nnz(A(:)));
+assert(full(norm(a(:)-A(:)))==0);
+
+a = sparse([1 0 2; 3 0 4]);
+A = DM(a);
+
+r = [1 2 6 7 8 9];
+a(:) = r;
+A(:) = r;
+
+assert(nnz(a(:))==nnz(A(:)));
+assert(full(norm(a(:)-A(:)))==0);
+
+a = sparse([1 0 2; 3 0 4]);
+A = DM(a);
+
+r = sparse([0 2 6 0 8 9]);
+a(:) = r;
+A(:) = r;
+
+assert(nnz(a(:))==nnz(A(:)));
+assert(full(norm(a(:)-A(:)))==0);
+
+
+assert(size(MX(ones(1,4)),1)==1)
+assert(size(MX(ones(1,4)),2)==4)
+
+

@@ -36,6 +36,10 @@
 #include <stack>
 
 namespace casadi {
+
+  class SerializingStream;
+  class DeserializingStream;
+
   /** \brief Node class for MX objects
       \author Joel Andersson
       \date 2010
@@ -173,6 +177,26 @@ namespace casadi {
 
     /** Obtain information about node */
     virtual Dict info() const;
+
+    /** \brief Serialize an object */
+    void serialize(SerializingStream& s) const;
+
+    /** \brief Serialize an object without type information */
+    virtual void serialize_body(SerializingStream& s) const;
+
+    /** \brief Serialize type information
+     * 
+     * Information needed to unambiguously find the (lowest level sub)class,
+     * such that its deserializing constructor can be called.
+     */
+    virtual void serialize_type(SerializingStream& s) const;
+
+    /** \brief Deserialize with type disambiguation
+     * 
+     * Uses the information encoded with serialize_type to unambiguously find the (lowest level sub)class,
+     * and calls its deserializing constructor.
+     */
+    static MXNode* deserialize(DeserializingStream& s);
 
     /** \brief Check if two nodes are equivalent up to a given depth */
     static bool is_equal(const MXNode* x, const MXNode* y, casadi_int depth);
@@ -399,6 +423,20 @@ namespace casadi {
     /// Find
     MX get_find() const;
 
+    /// BSpline
+    MX get_bspline(const std::vector<double>& knots,
+            const std::vector<casadi_int>& offset,
+            const std::vector<double>& coeffs,
+            const std::vector<casadi_int>& degree,
+            casadi_int m,
+            const std::vector<casadi_int>& lookup_mode) const;
+    /// BSpline
+    MX get_bspline(const MX& coeffs, const std::vector<double>& knots,
+            const std::vector<casadi_int>& offset,
+            const std::vector<casadi_int>& degree,
+            casadi_int m,
+            const std::vector<casadi_int>& lookup_mode) const;
+
     /** Temporary variables to be used in user algorithms like sorting,
         the user is responsible of making sure that use is thread-safe
         The variable is initialized to zero
@@ -416,6 +454,12 @@ namespace casadi {
 
     /** \brief Propagate sparsities backwards through a copy operation */
     static void copy_rev(bvec_t* arg, bvec_t* res, casadi_int len);
+
+    static std::map<casadi_int, MXNode* (*)(DeserializingStream&)> deserialize_map;
+
+  protected:
+    /** \brief Deserializing constructor */
+    explicit MXNode(DeserializingStream& s);
   };
 
   /// \endcond

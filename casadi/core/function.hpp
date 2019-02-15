@@ -35,7 +35,8 @@ namespace casadi {
 #ifndef SWIG
   /** Forward declaration of internal class */
   class FunctionInternal;
-
+  class SerializingStream;
+  class DeserializingStream;
 #endif // SWIG
 
   /** \brief Function object
@@ -498,7 +499,7 @@ namespace casadi {
     /** \brief  Evaluate symbolically in parallel and sum (matrix graph)
         \param parallelization Type of parallelization used: unroll|serial|openmp
     */
-    std::vector<MX> mapsum(const std::vector<MX > &arg,
+    std::vector<MX> mapsum(const std::vector<MX > &x,
                            const std::string& parallelization="serial") const;
 
     ///@{
@@ -542,8 +543,8 @@ namespace casadi {
         Set base to -1 to unroll all the way; no gains in memory efficiency here.
 
     */
-    Function mapaccum(const std::string& name, casadi_int n, const Dict& opts = Dict()) const;
-    Function mapaccum(const std::string& name, casadi_int n, casadi_int n_accum,
+    Function mapaccum(const std::string& name, casadi_int N, const Dict& opts = Dict()) const;
+    Function mapaccum(const std::string& name, casadi_int N, casadi_int n_accum,
                       const Dict& opts = Dict()) const;
     Function mapaccum(const std::string& name, casadi_int n,
                       const std::vector<casadi_int>& accum_in,
@@ -553,8 +554,8 @@ namespace casadi {
                       const std::vector<std::string>& accum_in,
                       const std::vector<std::string>& accum_out,
                       const Dict& opts=Dict()) const;
-    Function mapaccum(casadi_int n, const Dict& opts = Dict()) const;
-    Function fold(casadi_int n, const Dict& opts = Dict()) const;
+    Function mapaccum(casadi_int N, const Dict& opts = Dict()) const;
+    Function fold(casadi_int N, const Dict& opts = Dict()) const;
     ///@}
 
     /** \brief  Create a mapped version of this function
@@ -615,16 +616,6 @@ namespace casadi {
     static Function bspline(const std::string &name,
       const std::vector< std::vector<double> >& knots, const std::vector<double>& coeffs,
       const std::vector<casadi_int>& degree, casadi_int m=1, const Dict& opts=Dict());
-
-    /** \brief Dual BSpline evaluator function
-    *
-    *  Requires known evaluation positions
-    *  WARNING: This function may drastically change or be removed
-    */
-    static Function bspline_dual(const std::string &name,
-      const std::vector< std::vector<double> >& knots, const std::vector<double>& x,
-      const std::vector<casadi_int>& degree, casadi_int m=1,
-      bool reverse=false, const Dict& opts=Dict());
 
     /** \brief Constructor (if-else) */
     static Function if_else(const std::string& name, const Function& f_true,
@@ -693,6 +684,26 @@ namespace casadi {
     /** \brief Export / Generate C code for the dependency function */
     std::string generate_dependencies(const std::string& fname, const Dict& opts=Dict()) const;
 
+    /** \brief Export an input file that can be passed to generate C code with a main
+     * 
+     * \seealso generate_out
+     * \seealso convert_in to convert between dict/map and vector
+     */
+    /// @{
+    void generate_in(const std::string& fname, const std::vector<DM>& arg);
+    std::vector<DM> generate_in(const std::string& fname);
+    /// @}
+
+    /** \brief Export an output file that can be checked with generated C code output
+     * 
+     * \seealso generate_in
+     * \seealso convert_out to convert between dict/map and vector
+     */
+    /// @{
+    void generate_out(const std::string& fname, const std::vector<DM>& arg);
+    std::vector<DM> generate_out(const std::string& fname);
+    /// @}
+
     /** \brief Export function in specific language
      *
      * Only allowed for (a subset of) SX/MX Functions
@@ -703,11 +714,15 @@ namespace casadi {
 
 #ifndef SWIG
     /** \brief Serialize */
-    void serialize(std::ostream &stream) const;
+    void serialize(std::ostream &stream, const Dict& opts=Dict()) const;
+
+    /** \brief Serialize an object */
+    void serialize(SerializingStream &s) const;
 #endif
 
     /** \brief Serialize */
-    std::string serialize() const;
+    std::string serialize(const Dict& opts=Dict()) const;
+    void save(const std::string &fname, const Dict& opts=Dict()) const;
 
     std::string export_code(const std::string& lang, const Dict& options=Dict()) const;
 #ifndef SWIG
@@ -771,6 +786,34 @@ namespace casadi {
     const std::vector<MX> mx_out() const;
     ///@}
 
+    /** \brief Convert from/to flat vector of input/output nonzeros */
+    /// @{
+    std::vector<double> nz_from_in(const std::vector<DM>& arg) const;
+    std::vector<double> nz_from_out(const std::vector<DM>& arg) const;
+    std::vector<DM> nz_to_in(const std::vector<double>& arg) const;
+    std::vector<DM> nz_to_out(const std::vector<double>& arg) const;
+    ///@}
+
+    /** \brief Convert from/to input/output lists/map 
+    *
+    * Will raise an error when an unknown key is used or a list has incorrect size.
+    * Does not perform sparsity checking. 
+    */
+    /// @{
+    DMDict convert_in(const std::vector<DM>& arg) const;
+    std::vector<DM> convert_in(const DMDict& arg) const;
+    DMDict convert_out(const std::vector<DM>& arg) const;
+    std::vector<DM> convert_out(const DMDict& arg) const;
+    SXDict convert_in(const std::vector<SX>& arg) const;
+    std::vector<SX> convert_in(const SXDict& arg) const;
+    SXDict convert_out(const std::vector<SX>& arg) const;
+    std::vector<SX> convert_out(const SXDict& arg) const;
+    MXDict convert_in(const std::vector<MX>& arg) const;
+    std::vector<MX> convert_in(const MXDict& arg) const;
+    MXDict convert_out(const std::vector<MX>& arg) const;
+    std::vector<MX> convert_out(const MXDict& arg) const;
+    /// @}
+
     /** \brief Does the function have free variables */
     bool has_free() const;
 
@@ -809,6 +852,13 @@ namespace casadi {
 
     /** \brief Get the MX node corresponding to an instruction (MXFunction) */
     MX instruction_MX(casadi_int k) const;
+
+    /** \brief Get the SX node corresponding to all instructions (SXFunction)
+     *
+     * Note: input and output instructions have no SX representation.
+     * This method returns nan for those instructions.
+    */
+    SX instructions_sx() const;
 
     ///@{
     /** \brief  Is the class able to propagate seeds through the algorithm? */
@@ -877,10 +927,16 @@ namespace casadi {
     static std::string fix_name(const std::string& name);
 
     /** \brief Build function from serialization */
-    static Function deserialize(std::istream& istream);
+    static Function deserialize(std::istream& stream);
 
     /** \brief Build function from serialization */
     static Function deserialize(const std::string& s);
+
+    /** \brief Build function from serialization */
+    static Function load(const std::string& filename);
+
+    /** \brief Build function from serialization */
+    static Function deserialize(DeserializingStream& s);
 
     /// Assert that an input dimension is equal so some given value
     void assert_size_in(casadi_int i, casadi_int nrow, casadi_int ncol) const;
@@ -955,7 +1011,6 @@ namespace casadi {
 
 } // namespace casadi
 
-#include "sx.hpp"
 #include "casadi_interrupt.hpp"
 #include "runtime/shared.hpp"
 

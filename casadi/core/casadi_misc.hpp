@@ -92,6 +92,16 @@ private:
   CASADI_EXPORT bool all(const std::vector<bool> &v);
   /// Check if any arguments are true
   CASADI_EXPORT bool any(const std::vector<bool> &v);
+  /// Invert all entries
+  CASADI_EXPORT std::vector<bool> boolvec_not(const std::vector<bool> &v);
+  /// And operation on boolean vector
+  CASADI_EXPORT std::vector<bool> boolvec_and(const std::vector<bool> &lhs,
+      const std::vector<bool> &rhs);
+  /// Or operation on boolean vector
+  CASADI_EXPORT std::vector<bool> boolvec_or(const std::vector<bool> &lhs,
+      const std::vector<bool> &rhs);
+
+  CASADI_EXPORT std::vector<casadi_int> boolvec_to_index(const std::vector<bool> &v);
 
   CASADI_EXPORT bool is_equally_spaced(const std::vector<double> &v);
 
@@ -178,13 +188,13 @@ private:
   Apply a function f to each element in a vector
   */
   template<class T>
-  std::vector<T> applymap(T (*f)(const T&), const std::vector<T>&);
+  std::vector<T> applymap(T (*f)(const T&), const std::vector<T>& comp);
 
   /**
   Apply a function f to each element in a vector
   */
   template<class T>
-  void applymap(void (*f)(T&), std::vector<T>&);
+  void applymap(void (*f)(T&), std::vector<T>& comp);
 #endif // SWIG
   /// \endcond
 
@@ -311,6 +321,57 @@ private:
 
   // Create a temporary file
   CASADI_EXPORT std::string temporary_file(const std::string& prefix, const std::string& suffix);
+
+  CASADI_EXPORT void normalized_setup(std::istream& stream);
+  CASADI_EXPORT void normalized_setup(std::ostream& stream);
+
+  inline void normalized_out(std::ostream& stream, double val) {
+    if (val==std::numeric_limits<double>::infinity()) {
+      stream << "inf";
+    } else if (val==-std::numeric_limits<double>::infinity()) {
+      stream << "-inf";
+    } else if (val!=val) {
+      stream << "nan";
+    } else {
+      stream << val;
+    }
+  }
+  inline int normalized_in(std::istream& stream, double& ret) {
+    std::streampos start = stream.tellg();
+    stream >> ret;
+    // Failed to interpret as double?
+    if (stream.fail()) {
+      // Clear error flag
+      stream.clear();
+      // Reset stream position
+      // Need to parse e.g "-inf"
+      stream.seekg(start);
+      // Might be a inf/nan
+      std::string non_reg;
+      stream >> non_reg;
+      // Break on trailing whitespace
+      if (stream.fail()) {
+        if (stream.eof()) {
+          ret = std::numeric_limits<double>::quiet_NaN();
+          return -1; // End of stream
+        } else {
+          ret = std::numeric_limits<double>::quiet_NaN();
+          return 1; // Failed to parse to string
+        }
+      }
+      if (non_reg=="inf") {
+        ret = std::numeric_limits<double>::infinity();
+      } else if (non_reg=="-inf") {
+        ret = -std::numeric_limits<double>::infinity();
+      } else if (non_reg=="nan") {
+        ret = std::numeric_limits<double>::quiet_NaN();
+      } else {
+        ret = std::numeric_limits<double>::quiet_NaN();
+        return 2; // Failed to interpretas number
+      }
+    }
+    return 0;
+  }
 
 } // namespace casadi
 
@@ -449,7 +510,7 @@ namespace casadi {
 
   template<typename T>
   bool in_range(const std::vector<T> &v, casadi_int lower, casadi_int upper) {
-    if (v.size()==0) return true;
+    if (v.empty()) return true;
     casadi_int max = *std::max_element(v.begin(), v.end());
     if (max >= upper) return false;
     casadi_int min = *std::min_element(v.begin(), v.end());
@@ -464,7 +525,7 @@ namespace casadi {
 
   template<typename T>
   bool is_increasing(const std::vector<T> &v) {
-    if (v.size()==0) return true;
+    if (v.empty()) return true;
     T el = v[0];
     for (casadi_int i=1;i<v.size();++i) {
       if (!(v[i] > el)) return false;
@@ -475,7 +536,7 @@ namespace casadi {
 
   template<typename T>
   bool is_decreasing(const std::vector<T> &v) {
-    if (v.size()==0) return true;
+    if (v.empty()) return true;
     T el = v[0];
     for (casadi_int i=1;i<v.size();++i) {
       if (!(v[i] < el)) return false;
@@ -486,7 +547,7 @@ namespace casadi {
 
   template<typename T>
   bool is_nonincreasing(const std::vector<T> &v) {
-    if (v.size()==0) return true;
+    if (v.empty()) return true;
     T el = v[0];
     for (casadi_int i=1;i<v.size();++i) {
       if (!(v[i] <= el)) return false;
@@ -497,7 +558,7 @@ namespace casadi {
 
   template<typename T>
   bool is_nondecreasing(const std::vector<T> &v) {
-    if (v.size()==0) return true;
+    if (v.empty()) return true;
     T el = v[0];
     for (casadi_int i=1;i<v.size();++i) {
       if (!(v[i] >= el)) return false;
@@ -548,7 +609,7 @@ namespace casadi {
         stream.clear();
         std::string s;
         stream >> s;
-        if (s.compare("inf") == 0)
+        if (s=="inf")
           val = std::numeric_limits<T>::infinity();
         else
           break;
@@ -572,7 +633,7 @@ namespace casadi {
           reader.clear();
           std::string s;
           reader >> s;
-          if (s.compare("inf") == 0)
+          if (s=="inf")
             val = std::numeric_limits<T>::infinity();
           else
             break;

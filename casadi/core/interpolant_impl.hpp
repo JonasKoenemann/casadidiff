@@ -50,9 +50,12 @@ namespace casadi {
     /// Destructor
     ~Interpolant() override;
 
+    /** \brief Get type name */
+    std::string class_name() const override {return "Interpolant";}
+
     ///@{
     /** \brief Number of function inputs and outputs */
-    size_t get_n_in() override { return 1;}
+    size_t get_n_in() override { return is_parametric() ? 2 : 1;}
     size_t get_n_out() override { return 1;}
     ///@}
 
@@ -70,7 +73,7 @@ namespace casadi {
 
     ///@{
     /** \brief Options */
-    static Options options_;
+    static const Options options_;
     const Options& get_options() const override { return options_;}
     ///@}
 
@@ -84,6 +87,13 @@ namespace casadi {
         const std::vector<casadi_int>& margin_right=std::vector<casadi_int>());
 
     static std::vector<std::string> lookup_mode_from_enum(const std::vector<casadi_int>& modes);
+
+    static void stack_grid(const std::vector< std::vector<double> >& grid,
+      std::vector<casadi_int>& offset, std::vector<double>& stacked);
+
+    static void check_grid(const std::vector< std::vector<double> >& grid);
+
+    static std::vector<double> meshgrid(const std::vector< std::vector<double> >& grid);
 
     // Creator function for internal class
     typedef Interpolant* (*Creator)(const std::string& name,
@@ -118,6 +128,29 @@ namespace casadi {
 
     // Lookup modes
     std::vector<std::string> lookup_modes_;
+
+    /** \brief Serialize an object without type information */
+    void serialize_body(SerializingStream &s) const override;
+    /** \brief Serialize type information */
+    void serialize_type(SerializingStream &s) const override;
+
+    /** \brief String used to identify the immediate FunctionInternal subclass */
+    std::string serialize_base_function() const override { return "Interpolant"; }
+    /** \brief Deserialize with type disambiguation */
+    static ProtoFunction* deserialize(DeserializingStream& s);
+
+    /** \brief Is parametric? */
+    bool is_parametric() const { return values_.empty(); }
+
+    /** \brief Size of the falttened coefficients vector */
+    casadi_int coeff_size() const;
+
+  protected:
+
+    /** \brief Deserializing constructor */
+    explicit Interpolant(DeserializingStream& s);
+
+
   };
 
 } // namespace casadi

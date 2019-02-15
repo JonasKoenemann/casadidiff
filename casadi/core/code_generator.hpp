@@ -27,9 +27,9 @@
 #define CASADI_CODE_GENERATOR_HPP
 
 #include "function.hpp"
-#include <sstream>
 #include <map>
 #include <set>
+#include <sstream>
 
 namespace casadi {
 
@@ -216,6 +216,10 @@ namespace casadi {
                          const std::string& beta, const std::string& prinv,
                          const std::string& pc, const std::string& w);
 
+    /** \\brief LSQR solve */
+    std::string lsqr_solve(const std::string& A, const std::string&x,
+                          casadi_int nrhs, bool tr, const std::string& sp, const std::string& w);
+
     /** \brief LDL factorization */
     std::string ldl(const std::string& sp_a, const std::string& a,
                    const std::string& sp_lt, const std::string& lt,
@@ -227,6 +231,47 @@ namespace casadi {
                          const std::string& sp_lt, const std::string& lt,
                          const std::string& d, const std::string& p,
                          const std::string& w);
+
+    /** \brief fmax */
+    std::string fmax(const std::string& x, const std::string& y);
+
+    /** \brief fmin */
+    std::string fmin(const std::string& x, const std::string& y);
+
+    /** \brief vfmax */
+    std::string vfmax(const std::string& x, casadi_int n, const std::string& y);
+
+    /** \brief vfmin */
+    std::string vfmin(const std::string& x, casadi_int n, const std::string& y);
+
+    /** \brief vfmax */
+    std::string vfmax(const std::string& x, const std::string& n, const std::string& y);
+
+    /** \brief vfmin */
+    std::string vfmin(const std::string& x, const std::string& n, const std::string& y);
+
+    /** \brief max */
+    std::string max(const std::string& x, const std::string& y);
+
+    /** \brief min */
+    std::string min(const std::string& x, const std::string& y);
+
+    /** \brief norm_inf */
+    std::string norm_inf(casadi_int n, const std::string& x);
+
+    /** \brief max_viol */
+    std::string max_viol(casadi_int n, const std::string& x,
+      const std::string& lb, const std::string& ub);
+
+    /** \brief bound_consistency */
+    std::string bound_consistency(casadi_int n, const std::string& x,
+      const std::string& lam, const std::string& lbx, const std::string& ubx);
+
+    /** \brief lb_eig */
+    std::string lb_eig(const Sparsity& sp_h, const std::string& h);
+
+    /** \brief regularize */
+    std::string regularize(const Sparsity& sp_h, const std::string& h, const std::string& reg);
 
     /** \brief Declare a function */
     std::string declare(std::string s);
@@ -247,12 +292,14 @@ namespace casadi {
       AUX_NORM_2,
       AUX_NORM_INF,
       AUX_IAMAX,
+      AUX_CLEAR,
       AUX_FILL,
       AUX_MV,
       AUX_MV_DENSE,
       AUX_MTIMES,
       AUX_PROJECT,
       AUX_DENSIFY,
+      AUX_SPARSIFY,
       AUX_TRANS,
       AUX_TO_MEX,
       AUX_FROM_MEX,
@@ -266,6 +313,9 @@ namespace casadi {
       AUX_ND_BOOR_EVAL,
       AUX_FINITE_DIFF,
       AUX_QR,
+      AUX_QP,
+      AUX_NLP,
+      AUX_SQPMETHOD,
       AUX_LDL,
       AUX_NEWTON,
       AUX_TO_DOUBLE,
@@ -276,7 +326,19 @@ namespace casadi {
       AUX_IF_ELSE,
       AUX_PRINTF,
       AUX_FMIN,
-      AUX_FMAX
+      AUX_FMAX,
+      AUX_FABS,
+      AUX_MIN,
+      AUX_MAX,
+      AUX_VFMIN,
+      AUX_VFMAX,
+      AUX_MAX_VIOL,
+      AUX_REGULARIZE,
+      AUX_INF,
+      AUX_REAL_MIN,
+      AUX_ISINF,
+      AUX_BOUNDS_CONSISTENCY,
+      AUX_LSQR
     };
 
     /** \brief Add a built-in auxiliary function */
@@ -307,14 +369,29 @@ namespace casadi {
 
     /** \brief Create a copy operation */
     std::string copy(const std::string& arg, std::size_t n, const std::string& res);
+    void copy_check(const std::string& arg, std::size_t n, const std::string& res,
+      bool check_lhs=true, bool check_rhs=true);
+    void copy_default(const std::string& arg, std::size_t n, const std::string& res,
+      const std::string& def,  bool check_rhs=true);
 
     /** \brief Create a fill operation */
     std::string fill(const std::string& res, std::size_t n, const std::string& v);
+
+    /** \brief Create a fill operation */
+    std::string clear(const std::string& res, std::size_t n);
 
     /** \brief Sparse assignment */
     std::string project(const std::string& arg, const Sparsity& sp_arg,
                         const std::string& res, const Sparsity& sp_res,
                         const std::string& w);
+
+    /** \brief Densify */
+    std::string densify(const std::string& arg, const Sparsity& sp_arg,
+                        const std::string& res, bool tr=false);
+
+    /** \brief Sparsify */
+    std::string sparsify(const std::string& arg, const std::string& res,
+                         const Sparsity& sp_res, bool tr=false);
 
     /** \brief Create matrix in MATLAB's MEX format */
     std::string to_mex(const Sparsity& sp, const std::string& arg);
@@ -386,6 +463,9 @@ namespace casadi {
     // Verbose codegen?
     bool verbose;
 
+    // Verbose runtime?
+    bool verbose_runtime;
+
     // Are we generating C++?
     bool cpp;
 
@@ -398,6 +478,8 @@ namespace casadi {
     // Do we want to be lean on stack usage?
     bool avoid_stack_;
 
+    std::string infinity, real_min;
+
     /** \brief Codegen scalar
      * Use the work vector for storing work vector elements of length 1
      * (typically scalar) instead of using local variables
@@ -409,6 +491,9 @@ namespace casadi {
 
     // Prefix symbols in DLLs?
     std::string dll_export, dll_import;
+
+    // Prefix
+    std::string prefix;
 
     // Stringstreams holding the different parts of the file being generated
     std::stringstream includes;
