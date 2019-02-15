@@ -45,10 +45,8 @@ namespace casadi {
     /// Add a function (name generated)
     void add(const Function& f, bool with_jac_sparsity=false);
 
-#ifndef SWIG
     /// Generate the code to a stream
     void dump(std::ostream& s) const;
-#endif // SWIG
 
     /// Generate a file, return code as string
     std::string dump() const;
@@ -64,7 +62,6 @@ namespace casadi {
     void add_include(const std::string& new_include, bool relative_path=false,
                     const std::string& use_ifdef=std::string());
 
-#ifndef SWIG
     /// Add a function dependency
     std::string add_dependency(const Function& f);
 
@@ -552,7 +549,6 @@ namespace casadi {
       return true;
     }
     /// \endcond
-#endif // SWIG
   };
 
 

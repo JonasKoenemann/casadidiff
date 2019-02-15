@@ -32,12 +32,10 @@
 
 namespace casadi {
 
-#ifndef SWIG
   /** Forward declaration of internal class */
   class FunctionInternal;
   class SerializingStream;
   class DeserializingStream;
-#endif // SWIG
 
   /** \brief Function object
       A Function instance is a general multiple-input, multiple-output function

@@ -40,24 +40,6 @@
 #include <utility>
 #include <vector>
 
-#ifdef SWIG
-#define SWIG_IF_ELSE(is_swig, not_swig) is_swig
-#define SWIG_OUTPUT(arg) OUTPUT
-#define SWIG_INOUT(arg) INOUT
-#define SWIG_CONSTREF(arg) const arg
-#ifdef SWIGMATLAB
-#define SWIG_IND1 true
-#else // SWIGMATLAB
-#define SWIG_IND1 false
-#endif // SWIGMATLAB
-#else // SWIG
-#define SWIG_IF_ELSE(is_swig, not_swig) not_swig
-#define SWIG_OUTPUT(arg) arg
-#define SWIG_INOUT(arg) arg
-#define SWIG_CONSTREF(arg) const arg &
-#define SWIG_IND1 false
-#endif // SWIG
-
 #include "casadi_types.hpp"
 
 namespace casadi {
@@ -75,7 +57,6 @@ namespace casadi {
   class XmlFile;
   class Importer;
 
-#ifndef SWIG
 // Get GCC version if GCC is used
 #ifdef __GNUC__
 #ifdef __GNUC_MINOR__
@@ -301,7 +282,6 @@ namespace casadi {
     ss << "}";
     return ss.str();
   }
-#endif // SWIG
 
 } // namespace casadi
 
