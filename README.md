@@ -1,6 +1,6 @@
 ## CasADi fork for automatic differentation in a CAS framework
 
-This project became a derivative work of CasADi on February 15, 2019, and since then has been modified. The fork is licensed under GPL while parts of the original work are licensed under LGPL until the corresponding copryright notices are altered.
+This project became a derivative work of CasADi on February 15, 2019, and since then has been modified. The fork is licensed under GPL while parts of the original work are licensed under LGPL. Whenever we alter an original file we will change the license to GPL.
 
 The homepage of CasADi is: [http://casadi.org](http://casadi.org)
 
