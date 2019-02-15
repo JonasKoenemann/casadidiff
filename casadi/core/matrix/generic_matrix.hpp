@@ -40,10 +40,6 @@
 #include "generic_type.hpp"
 
 namespace casadi {
-  /** \brief Empty Base
-      This class is extended in SWIG.
-   */
-  struct CASADI_EXPORT GenericMatrixCommon {};
 
   /** \brief Matrix base class
 
@@ -75,8 +71,7 @@ namespace casadi {
   */
   template<typename MatType>
   class GenericMatrix
-    : public GenericMatrixCommon,
-      public SWIG_IF_ELSE(SparsityInterfaceCommon, SparsityInterface<MatType>) {
+    : SparsityInterface<MatType> {
     using SparsityInterface<MatType>::self;
   public:
 
@@ -150,10 +145,8 @@ namespace casadi {
     /** \brief Get the sparsity pattern. See the Sparsity class for details. */
     std::vector<casadi_int> get_row() const { return sparsity().get_row(); }
     std::vector<casadi_int> get_colind() const { return sparsity().get_colind(); }
-#ifndef SWIG
     const casadi_int* row() const { return sparsity().row(); }
     const casadi_int* colind() const { return sparsity().colind(); }
-#endif
     casadi_int row(casadi_int el) const { return sparsity().row(el); }
     casadi_int colind(casadi_int col) const { return sparsity().colind(col); }
     ///@}
@@ -161,7 +154,6 @@ namespace casadi {
     /** \brief Get the sparsity pattern */
     SWIG_CONSTREF(Sparsity) sparsity() const;
 
-#ifndef SWIG
     /// \cond CLUTTER
     /**  @{  */
     /** \brief Functions called by friend functions defined here */
@@ -237,9 +229,7 @@ namespace casadi {
     SubMatrix<MatType, RR, CC> operator()(const RR& rr, const CC& cc) {
       return SubMatrix<MatType, RR, CC>(self(), rr, cc);
     }
-#endif // SWIG
 
-#if !defined(SWIG) || defined(DOXYGEN)
 /**
 \ingroup expression_tools
 @{
@@ -773,7 +763,6 @@ namespace casadi {
     ///@}
 
 /** @} */
-#endif // SWIG
 
     /** @name Construct symbolic primitives
         The "sym" function is intended to work in a similar way as "sym" used
@@ -848,7 +837,6 @@ namespace casadi {
   throw CasadiException("Error in " + MatType::type_name() \
     + "::" FNAME " at " + CASADI_WHERE + ":\n" + std::string(WHAT));
 
-#ifndef SWIG
   // Implementations
   template<typename MatType>
   const Sparsity& GenericMatrix<MatType>::sparsity() const {
@@ -909,8 +897,6 @@ namespace casadi {
   bool GenericMatrix<MatType>::is_scalar(bool scalar_and_dense) const {
     return sparsity().is_scalar(scalar_and_dense);
   }
-
-#endif // SWIG
 
   template<typename MatType>
   std::vector<MatType> GenericMatrix<MatType>::sym(const std::string& name,

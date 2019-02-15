@@ -36,7 +36,6 @@
 namespace casadi {
 
 
-#ifndef SWIG
   /** \brief Expression interface
   *
   This is a common base class for SX, MX and Matrix<>, introducing a uniform syntax and implementing
@@ -587,7 +586,6 @@ class GenericExpression {
 
 /** @} */
 };
-#endif // SWIG
 
 } // namespace casadi
 

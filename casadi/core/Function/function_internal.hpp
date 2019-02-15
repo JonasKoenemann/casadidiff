@@ -274,7 +274,7 @@ namespace casadi {
 
     ///@{
     /** Helper function
-     * 
+     *
      * \param npar[in] normal usage: 1, disallow pararallel calls: -1
      * \param npar[out] required number of parallel calls (or -1)
      */
@@ -283,7 +283,7 @@ namespace casadi {
 
     ///@{
     /** \brief Check if input arguments have correct length and dimensions
-     * 
+     *
      * Raises errors.
      *
      * \param npar[in] normal usage: 1, disallow pararallel calls: -1
@@ -295,9 +295,9 @@ namespace casadi {
 
     ///@{
     /** \brief Check if output arguments have correct length and dimensions
-     * 
+     *
      * Raises errors.
-     * 
+     *
      * \param npar[in] normal usage: 1, disallow pararallel calls: -1
      * \param[out] npar: max number of horizontal repetitions across all arguments  (or -1)
      */
@@ -306,9 +306,9 @@ namespace casadi {
     ///@}
 
     /** \brief Check if input arguments that needs to be replaced
-     * 
+     *
      * Raises errors
-     * 
+     *
      * \param npar[in] normal usage: 1, disallow pararallel calls: -1
      * \param[out] npar: max number of horizontal repetitions across all arguments  (or -1)
      */
@@ -316,9 +316,9 @@ namespace casadi {
     matching_arg(const std::vector<M>& arg, casadi_int& npar) const;
 
     /** \brief Check if output arguments that needs to be replaced
-     * 
+     *
      * Raises errors
-     * 
+     *
      * \param npar[in] normal usage: 1, disallow pararallel calls: -1
      * \param[out] npar: max number of horizontal repetitions across all arguments  (or -1)
      */
@@ -330,12 +330,12 @@ namespace casadi {
     template<typename M> std::vector<M>
     replace_arg(const std::vector<M>& arg, casadi_int npar) const;
 
-    /** \brief Project sparsities 
+    /** \brief Project sparsities
      * */
     template<typename M> std::vector<M>
     project_arg(const std::vector<M>& arg, casadi_int npar) const;
 
-    /** \brief Project sparsities 
+    /** \brief Project sparsities
      * */
     template<typename M> std::vector<M>
     project_res(const std::vector<M>& arg, casadi_int npar) const;

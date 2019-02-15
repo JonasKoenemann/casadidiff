@@ -1,23 +1,28 @@
 /*
- *    This file is part of CasADi.
+ *    This program is a derivative work of CasADi.
+ *    The original program has been altered starting from February 15, 2019.
+ *    The license of this file was changed from LGPL to GPL on February 15, 2019.
+ *
+ *    Copyright (C) 2019 Jonas Koenemann
  *
  *    CasADi -- A symbolic framework for dynamic optimization.
  *    Copyright (C) 2010-2014 Joel Andersson, Joris Gillis, Moritz Diehl,
  *                            K.U. Leuven. All rights reserved.
  *    Copyright (C) 2011-2014 Greg Horn
  *
- *    CasADi is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public
  *    License as published by the Free Software Foundation; either
  *    version 3 of the License, or (at your option) any later version.
  *
- *    CasADi is distributed in the hope that it will be useful,
+ *    This program is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ *    General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with CasADi; if not, write to the Free Software
+ *    You should have received a copy of the GNU General Public
+ *    License and GNU Lesser General Public License along with this program;
+ *    if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
@@ -683,7 +688,7 @@ namespace casadi {
     std::string generate_dependencies(const std::string& fname, const Dict& opts=Dict()) const;
 
     /** \brief Export an input file that can be passed to generate C code with a main
-     * 
+     *
      * \seealso generate_out
      * \seealso convert_in to convert between dict/map and vector
      */
@@ -693,7 +698,7 @@ namespace casadi {
     /// @}
 
     /** \brief Export an output file that can be checked with generated C code output
-     * 
+     *
      * \seealso generate_in
      * \seealso convert_out to convert between dict/map and vector
      */
@@ -792,10 +797,10 @@ namespace casadi {
     std::vector<DM> nz_to_out(const std::vector<double>& arg) const;
     ///@}
 
-    /** \brief Convert from/to input/output lists/map 
+    /** \brief Convert from/to input/output lists/map
     *
     * Will raise an error when an unknown key is used or a list has incorrect size.
-    * Does not perform sparsity checking. 
+    * Does not perform sparsity checking.
     */
     /// @{
     DMDict convert_in(const std::vector<DM>& arg) const;
