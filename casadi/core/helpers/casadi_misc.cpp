@@ -34,11 +34,7 @@
 #include <io.h>
 #include <share.h>
 #else
-<<<<<<< HEAD
-#include <unistd.h>
-=======
 #define CASADI_NEED_UNISTD
->>>>>>> f55ebf95ec646d3855e716a44a07e03fee629611
 #endif
 #include <random>
 #include <chrono>
