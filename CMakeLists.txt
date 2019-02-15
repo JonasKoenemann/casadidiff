@@ -3,13 +3,8 @@ project(casadi C CXX)
 
 set(CASADI_MAJOR_VERSION 3)
 set(CASADI_MINOR_VERSION 4)
-<<<<<<< HEAD
 set(CASADI_PATCH_VERSION 5)
 set(CASADI_IS_RELEASE 1)
-=======
-set(CASADI_PATCH_VERSION 4)
-set(CASADI_IS_RELEASE 0)
->>>>>>> f55ebf95ec646d3855e716a44a07e03fee629611
 
 set(CASADI_VERSION ${CASADI_MAJOR_VERSION}.${CASADI_MINOR_VERSION}.${CASADI_PATCH_VERSION})
 if(NOT CASADI_IS_RELEASE)
@@ -207,14 +202,6 @@ else()
 endif()
 
 ############################################################
-####################### macports python ####################
-############################################################
-# find the macports python libs if they exist
-if(APPLE)
-  set(CMAKE_LIBRARY_PATH /opt/local/lib ${CMAKE_LIBRARY_PATH})
-endif()
-
-############################################################
 ################# WITH_COMMON option #######################
 ############################################################
 option(WITH_COMMON "Build common, stable interfaces, if found" OFF)
@@ -236,15 +223,6 @@ else()
   set(WITH_IPOPT_DEF OFF)
 endif()
 
-#####################################################
-######################### swig ######################
-#####################################################
-option(WITH_PYTHON "Compile the Python front-end" OFF)
-option(WITH_MATLAB "Compile the MATLAB front-end" OFF)
-option(WITH_OCTAVE "Compile the Octave front-end (experimental)" OFF)
-option(WITH_JSON "Compile the JSON front-end" OFF)
-option(WITH_OCTAVE_IMPORT "[DEPRECATED] Copy import.m file to install directory" OFF)
-option(WITH_PYTHON3 "Use Python 3.*" OFF)
 
 ############################################################
 ################# Misc options #############################
@@ -279,17 +257,6 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
   endif()
 endif()
-
-
-# OpenCL
-option(WITH_OPENCL "Compile with OpenCL support (experimental)" OFF)
-if(WITH_OPENCL)
-  # Core depends on OpenCL for GPU calculations
-  find_package(OpenCL REQUIRED)
-  add_definitions(-DWITH_OPENCL)
-  include_directories(${OPENCL_INCLUDE_DIRS})
-endif()
-add_feature_info(opencl-support WITH_OPENCL "Enable just-in-time compiliation to CPUs and GPUs with OpenCL.")
 
 # Enable: RTLD_DEEPBIND
 option(WITH_DEEPBIND "Load plugins with RTLD_DEEPBIND (can be used to resolve conflicting libraries in e.g. MATLAB)" ON)
@@ -445,17 +412,6 @@ if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64")
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -fPIC")
 endif()
 
-
-#######################################################################
-########################### code coverage #############################
-#######################################################################
-option(WITH_COVERAGE "Create coverage report" OFF)
-if(WITH_COVERAGE)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -fprofile-arcs -ftest-coverage")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fprofile-arcs -ftest-coverage")
-set(CMAKE_EXE_LINKER_FLAGS  " -lgcov -fprofile-arcs --coverage ${CMAKE_EXE_LINKER_FLAGS}")
-endif()
-
 if(MINGW)
   # Circumventing a bug in MinGW g++ v4.7.2, evoked by 752fa89355ffa
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-ipa-cp-clone")
@@ -489,260 +445,6 @@ endif()
 include_directories(.)
 include_directories(${PROJECT_BINARY_DIR})
 
-#######################################################################
-################# 3rd party interface #################################
-#######################################################################
-# Sundials: Solve initial-value problems in ODE and DAE
-option(WITH_BUILD_SUNDIALS "Compile the included source code for Sundials 2.6.1" ON)
-option(WITH_SUNDIALS "Compile the interface to Sundials" ON)
-if(WITH_SUNDIALS)
-  if(WITH_BUILD_SUNDIALS)
-    # build the included sundials
-    set(SUNDIALS_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/casadi-sundials)
-    set(SUNDIALS_LIBRARIES casadi_sundials)
-  else()
-    # try to find system sundials
-    add_definitions(-DWITH_SYSTEM_SUNDIALS)
-    find_package(SUNDIALS REQUIRED)
-  endif()
-endif()
-add_feature_info(sundials-interface WITH_SUNDIALS "Interface to the ODE/DAE integrator suite SUNDIALS.")
-
-# CSparse: A sparse direct linear solver (included in the source)
-option(WITH_BUILD_CSPARSE "Compile the included source code for CSparse" ON)
-option(WITH_CSPARSE "Compile the interface to CSparse" ON)
-if(WITH_CSPARSE)
-  if(WITH_BUILD_CSPARSE)
-    # build the included csparse
-    set(CSPARSE_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/CSparse/Include)
-    set(CSPARSE_LIBRARIES casadi_csparse)
-  else()
-    # try to find system csparse
-    find_package(CSPARSE REQUIRED)
-  endif()
-endif()
-add_feature_info(csparse-interface WITH_CSPARSE "Interface to the sparse direct linear solver CSparse.")
-
-# BLASFEO
-option(WITH_BLASFEO "Compile the interface to BLASFEO" OFF)
-option(WITH_BUILD_BLASFEO "Compile the the included source code for BLASFEO" ON)
-if(WITH_BLASFEO)
-  if(WITH_BUILD_BLASFEO)
-    if(EXISTS ${PROJECT_SOURCE_DIR}/external_packages/blasfeo/src/include)
-      set(BLASFEO_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/blasfeo/src/include)
-      set(BLASFEO_LIBRARIES)
-    else()
-      message(FATAL_ERROR "Blasfeo directory not found. If you want blasfeo, do git submodule init; git submodule update.")
-    endif()
-  else()
-    # try to find system blasfeo
-    find_package(BLASFEO REQUIRED)
-    set(BLASFEO_DLOPEN OFF)
-  endif()
-endif()
-add_feature_info(blasfeo-interface WITH_BLASFEO "Interface to blasfeo.")
-
-# HPMPC
-option(WITH_HPMPC "Compile the interface to HPMPC" OFF)
-option(WITH_BUILD_HPMPC "Compile the the included source code for HPMPC" ON)
-if(WITH_HPMPC)
-  if(NOT WITH_BLASFEO)
-    message(FATAL_ERROR "WITH_HPMPC requires WITH_BLASFEO")
-  endif()
-  if(WITH_BUILD_HPMPC)
-    if(EXISTS ${PROJECT_SOURCE_DIR}/external_packages/hpmpc/src/include)
-      set(HPMPC_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/hpmpc/src/include)
-      set(HPMPC_LIBRARIES)
-      set(HPMPC_DLOPEN ON)
-    else()
-      message(FATAL_ERROR "Hpmpc directory not found. If you want hpmpc, do git submodule init; git submodule update.")
-    endif()
-  else()
-    # try to find system hpmpc
-    find_package(HPMPC REQUIRED)
-    set(HPMPC_DLOPEN OFF)
-  endif()
-endif()
-add_feature_info(hpmpc-interface WITH_HPMPC "Interface to hpmpc.")
-
-# TinyXML: An XML reader, needed e.g. by the Modelica interface
-option(WITH_BUILD_TINYXML "Compile the included TinyXML source code" ON)
-option(WITH_TINYXML "Compile the interface to TinyXML" ON)
-if(WITH_TINYXML)
-  if(WITH_BUILD_TINYXML)
-    # build the included tinyxml
-    set(TINYXML_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/tinyxml-2.6.2)
-    set(TINYXML_LIBRARIES casadi_tinyxml)
-  else()
-    # try to find system tinyxml
-    find_package(TINYXML REQUIRED)
-  endif()
-endif()
-add_feature_info(tinyxml-interface WITH_TINYXML "Interface to the XML parser TinyXML.")
-
-# DSDP
-option(WITH_BUILD_DSDP "Compile the the included source code for DSDP" OFF)
-option(WITH_DSDP "Compile the interface to DSDP" OFF)
-if(WITH_DSDP)
-  if(WITH_BUILD_DSDP)
-    # build the included dsdp
-    set(DSDP_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/DSDP/include)
-    set(DSDP_LIBRARIES casadi_dsdp)
-  else()
-    # try to find system dsdp
-    find_package(DSDP REQUIRED)
-  endif()
-endif()
-add_feature_info(dsdp-interface WITH_DSDP "Interface to the interior point SDP solver DSDP.")
-
-# CLANG: A just-in-time compiler
-option(OLD_LLVM "Use pre-3.5 LLVM" OFF)
-option(WITH_CLANG "Compile the interface to clang JIT" OFF)
-if(WITH_CLANG)
-  # try to find system CLANG
-  find_package(CLANG REQUIRED)
-endif()
-add_feature_info(clang-interface WITH_CLANG "Interface to the Clang JIT compiler.")
-
-# Lapack: Dense linear solvers
-option(WITH_LAPACK "Compile the interface to LAPACK" ${WITH_LAPACK_DEF})
-if(WITH_LAPACK)
-  find_package(LAPACK REQUIRED)
-  if(DEFINED ENV{CASADI_EXTRA_LIBRARIES_LAPACK})
-    set(LAPACK_LIBRARIES ${LAPACK_LIBRARIES} $ENV{CASADI_EXTRA_LIBRARIES_LAPACK})
-  endif()
-endif()
-add_feature_info(lapack-interface WITH_LAPACK "Interface to LAPACK.")
-
-# qpOASES: An active-set QP solver
-option(WITH_QPOASES "Compile the interface to qpOASES (the source code for qpOASES is included)" ${WITH_QPOASES_DEF})
-option(WITH_NO_QPOASES_BANNER "Add -D__NO_COPYRIGHT__ to qpOASES definitions" OFF)
-if(WITH_QPOASES)
-  if (NOT WITH_LAPACK)
-     message(FATAL_ERROR "WITH_QPOASES requires WITH_LAPACK.")
-  endif()
-  set(QPOASES_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/qpOASES/include)
-  set(QPOASES_LIBRARIES casadi_qpoases)
-endif()
-add_feature_info(qpoases-interface WITH_QPOASES "Interface to the active-set QP solver qpOASES.")
-
-# blockSQP: A block-structure-exploiting SQP method
-option(WITH_BLOCKSQP "Compile the interface to blockSQP (the source code for blockSQP is included)" ${WITH_BLOCKSQP_DEF})
-if(WITH_BLOCKSQP)
-  if (NOT WITH_QPOASES)
-    message(FATAL_ERROR "WITH_BLOCKSQP requires WITH_QPOASES.")
-  endif()
-endif()
-add_feature_info(blocksqp-interface WITH_BLOCKSQP "Interface to the NLP solver blockSQP.")
-
-# IPOPT: A sparse interior point NLP solver with filter line-search
-option(WITH_IPOPT "Compile the interface to IPOPT" ${WITH_IPOPT_DEF})
-if(WITH_IPOPT)
-  find_package(IPOPT REQUIRED)
-endif()
-add_feature_info(ipopt-interface WITH_IPOPT "Interface to the NLP solver Ipopt.")
-
-# Bonmin: An MINLP solver
-option(WITH_BONMIN "Compile the interface to BONMIN" OFF)
-if(WITH_BONMIN)
-  find_package(BONMIN REQUIRED)
-endif()
-add_feature_info(bonmin-interface WITH_BONMIN "Interface to the MINLP framework Bonmin.")
-
-# Knitro: An NLP solver
-option(WITH_KNITRO "Compile the interface to KNITRO" OFF)
-if(WITH_KNITRO)
-  find_package(KNITRO REQUIRED)
-endif()
-add_feature_info(knitro-interface WITH_KNITRO "Interface to the NLP solver KNITRO.")
-
-# CPLEX: A sparse mixed-integer QP solver
-option(WITH_CPLEX "Compile the interface to CPLEX" OFF)
-option(WITH_CPLEX_SHARED "Use shared cplex libraries" OFF)
-if(WITH_CPLEX)
-  find_package(CPLEX REQUIRED)
-endif()
-add_feature_info(cplex-interface WITH_CPLEX "Interface to the QP solver CPLEX.")
-
-# CLP: A sparse linear solver
-option(WITH_CLP "Compile the CLP interface" OFF)
-if(WITH_CLP)
-  find_package(CLP REQUIRED)
-endif()
-add_feature_info(clp-interface WITH_CLP "Interface to the LP solver CLP.")
-
-# SNOPT: An SQP method
-option(WITH_SNOPT "Compile the SNOPT interface if SNOPT libraries can be found" OFF)
-option(WITH_SNOPT_FORCE_DUMMY "Compile the SNOPT interface against a dummy library (for Debian distribution; breaks normal SNOPT build)" OFF)
-option(WITH_BUILD_SNOPT_INTERFACE "Use the SNOPT C-interface shipped with casadi" ON)
-if(WITH_SNOPT)
-  if(NOT WITH_SNOPT_FORCE_DUMMY)
-    find_package(SNOPT REQUIRED)
-  endif()
-  if(WITH_BUILD_SNOPT_INTERFACE)
-    set(SNOPT_INTERFACE_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/external_packages/snopt-interface/include)
-    set(SNOPT_INTERFACE_LIBRARIES casadi_snopt_interface)
-  else()
-    find_package(SNOPT_INTERFACE REQUIRED)
-  endif()
-endif()
-add_feature_info(snopt-interface WITH_SNOPT "Interface to the NLP solver SNOPT.")
-
-# HSL: Sparse direct linear solvers
-option(WITH_HSL "Enable HSL interface" OFF)
-if(WITH_HSL)
-  find_package(HSL REQUIRED)
-endif()
-add_feature_info(hsl-interface WITH_HSL "Interface to HSL.")
-
-# OOQP: A sparse interior point QP solver
-option(WITH_OOQP "Enable OOQP interface" OFF)
-if(WITH_OOQP)
-  find_package(OOQP REQUIRED)
-endif()
-add_feature_info(ooqp-interface WITH_OOQP "Interface to the QP solver OOQP (requires BLAS and HSL libraries).")
-
-# GUROBI: A sparse mixed-integer QP solver
-option(WITH_GUROBI "Compile the interface to GUROBI" OFF)
-if(WITH_GUROBI)
-  find_package(GUROBI REQUIRED)
-endif()
-add_feature_info(gurobi-interface WITH_GUROBI "Interface to the (mixed-integer) QP solver GUROBI")
-
-# SQIC: A QP solver
-option(WITH_SQIC "Enable SQIC interface" OFF)
-if(WITH_SQIC)
-  if (NOT Fortran_language_works)
-    message(FATAL_ERROR "SQIC requires Fortran support.")
-  endif()
-  find_package(SQIC REQUIRED)
-endif()
-add_feature_info(sqic-interface WITH_SQIC "Interface to the QP solver SQIC.")
-
-# AMPL: Interface to the AMPL solver library and interfaced solvers
-option(WITH_AMPL "Compile the interface to AMPL" OFF)
-add_feature_info(ampl-interface WITH_AMPL "Interface to the AMPL solver library.")
-
-# Slicot: used for expm, dple
-option(WITH_SLICOT "Enable SLICOT interface" OFF)
-if(WITH_SLICOT)
-  if (NOT Fortran_language_works)
-    message(FATAL_ERROR "SLICOT requires Fortran support.")
-  endif()
-  if (NOT WITH_LAPACK)
-     message(FATAL_ERROR "WITH_SLICOT requires WITH_LAPACK.")
-  endif()
-  find_package(SLICOT REQUIRED)
-endif()
-add_feature_info(slicot-interface WITH_SLICOT "Interface to the controls library SLICOT.")
-
-# Worhp: A sparse SQP method
-option(WITH_WORHP "Compile the WORHP interface" OFF)
-if(WITH_WORHP)
-  find_package(WORHP REQUIRED)
-endif()
-add_feature_info(worhp-interface WITH_WORHP "Interface to the NLP solver Worhp (requires gfortran, gomp).")
-
 ######################################################
 ##################### paths ##########################
 ######################################################
@@ -755,39 +457,6 @@ else()
   set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
   set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 endif()
-
-#####################################################
-###################### swig #########################
-#####################################################
-option(WITH_EXTENDING_CASADI "Compile a demonstration that shows how a project that depends on CasADi can be implemented." OFF)
-if(WITH_PYTHON OR WITH_MATLAB OR WITH_OCTAVE OR WITH_JSON)
-  add_subdirectory(swig)
-endif()
-
-option(WITH_LINT "Compile with support for linting (syntax checking)" OFF)
-if(WITH_LINT)
-  include(CppLint REQUIRED)
-endif()
-
-option(WITH_SPELL "Compile with support for spell-checking" OFF)
-if(WITH_SPELL)
-  include(SpellCheck REQUIRED)
-endif()
-
-option(WITH_CLANG_TIDY "Compile with support for clang-tidy" OFF)
-if(WITH_CLANG_TIDY)
-  include(ClangTidy REQUIRED)
-  set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-  if(WITH_EXTRA_WARNINGS)
-    # -Wall leaks into clang-tidy (through compile_commands.json)
-    # silently overruling the 'Checks' field.
-    # These warnings come from external_packages
-    set(EXTRA_CASADI_CXX_FLAGS "${EXTRA_CASADI_CXX_FLAGS} -Wno-overloaded-virtual -Wno-deprecated-register")
-  endif()
-endif()
-
-include(embed_resources)
-include(GenerateExportHeader)
 
 #####################################################
 ################# include the rest ##################
@@ -803,36 +472,6 @@ if(WITH_EXAMPLES)
   add_subdirectory(docs/api/examples/ctemplate)
 endif()
 
-#####################################################
-######################### docs ######################
-#####################################################
-option(WITH_DOC "Enable documentation generation" OFF)
-if(WITH_DOC)
-  set(DOXYFILE_LATEX "NO")
-  set(DOXYFILE_IN_DIR ${PROJECT_SOURCE_DIR}/docs/api)
-  set(DOXYFILE_OUTPUT_DIR  ${PROJECT_SOURCE_DIR}/docs/api)
-  set(DOXYFILE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/casadi)
-  include(UseDoxygen OPTIONAL)
-  add_custom_target(tutor)
-endif()
-
-
-
-# Print a summary
-feature_summary(WHAT ALL)
-feature_summary(WHAT ENABLED_FEATURES VAR feature_list)
-
-string(REPLACE "\n" "\\n" feature_list "${feature_list}")
-get_directory_property( compiler_definitions COMPILE_DEFINITIONS )
-set(EXTRA_CXX_FLAGS_FROM_DEFS "")
-foreach(DEF ${compiler_definitions})
-  set(EXTRA_CXX_FLAGS_FROM_DEFS "${EXTRA_CXX_FLAGS_FROM_DEFS} -D${DEF}")
-endforeach()
-
-# what is this?
-if(EXTRA_CMAKE)
-  include(${EXTRA_CMAKE})
-endif()
 
 ########################################################
 ########### Generate config files ######################
