@@ -1,1 +1,3 @@
-Learn all about CasADi at the [homepage](http://casadi.org) or jump to [install instructions](http://install.casadi.org)...
+## CasADi fork for automatic differentation in a CAS framework
+
+[http://casadi.org](http://casadi.org)
