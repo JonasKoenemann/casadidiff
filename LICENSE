@@ -2,9 +2,11 @@ Note:
   This repository is a fork of CasADi. The original code of 
   CasADi in the reository https://github.com/casadi/casadi
   is licensed under LGPL. For this fork we decided you relicense
-  the existing CasADi code as well as the newly added code
+  the existing CasADi code whenever we alter the code,
+  as well as the newly added code
   under GPL. Please see the block comment at the top
   of each source file to get the copyright information. 
+  The LGPL license notice can be found in LICENSE_LGPL.
 
 --------------------------------------------------------------------
                     GNU GENERAL PUBLIC LICENSE
