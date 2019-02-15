@@ -1,5 +1,4 @@
-Note:
-  This repository is a fork of CasADi. The original code of 
+  This repository is a derivative work of CasADi. The original code of 
   CasADi in the reository https://github.com/casadi/casadi
   is licensed under LGPL. For this fork we decided you relicense
   the existing CasADi code whenever we alter the code,
