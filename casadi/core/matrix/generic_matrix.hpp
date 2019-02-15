@@ -1,23 +1,28 @@
 /*
- *    This file is part of CasADi.
+ *    This program is a derivative work of CasADi.
+ *    The original program has been altered starting from February 15, 2019.
+ *    The license of this file was changed from LGPL to GPL on February 15, 2019.
+ *
+ *    Copyright (C) 2019 Jonas Koenemann
  *
  *    CasADi -- A symbolic framework for dynamic optimization.
  *    Copyright (C) 2010-2014 Joel Andersson, Joris Gillis, Moritz Diehl,
  *                            K.U. Leuven. All rights reserved.
  *    Copyright (C) 2011-2014 Greg Horn
  *
- *    CasADi is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public
  *    License as published by the Free Software Foundation; either
  *    version 3 of the License, or (at your option) any later version.
  *
- *    CasADi is distributed in the hope that it will be useful,
+ *    This program is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ *    General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with CasADi; if not, write to the Free Software
+ *    You should have received a copy of the GNU General Public
+ *    License and GNU Lesser General Public License along with this program;
+ *    if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
@@ -145,10 +150,10 @@ namespace casadi {
     /** \brief Get the sparsity pattern. See the Sparsity class for details. */
     std::vector<casadi_int> get_row() const { return sparsity().get_row(); }
     std::vector<casadi_int> get_colind() const { return sparsity().get_colind(); }
-#ifndef SWIG
+
     const casadi_int* row() const { return sparsity().row(); }
     const casadi_int* colind() const { return sparsity().colind(); }
-#endif
+
     casadi_int row(casadi_int el) const { return sparsity().row(el); }
     casadi_int colind(casadi_int col) const { return sparsity().colind(col); }
     ///@}
@@ -156,7 +161,7 @@ namespace casadi {
     /** \brief Get the sparsity pattern */
     SWIG_CONSTREF(Sparsity) sparsity() const;
 
-#ifndef SWIG
+
     /// \cond CLUTTER
     /**  @{  */
     /** \brief Functions called by friend functions defined here */
@@ -232,9 +237,7 @@ namespace casadi {
     SubMatrix<MatType, RR, CC> operator()(const RR& rr, const CC& cc) {
       return SubMatrix<MatType, RR, CC>(self(), rr, cc);
     }
-#endif // SWIG
 
-#if !defined(SWIG) || defined(DOXYGEN)
 /**
 \ingroup expression_tools
 @{
@@ -778,7 +781,6 @@ namespace casadi {
     ///@}
 
 /** @} */
-#endif // SWIG
 
     /** @name Construct symbolic primitives
         The "sym" function is intended to work in a similar way as "sym" used
@@ -853,7 +855,6 @@ namespace casadi {
   throw CasadiException("Error in " + MatType::type_name() \
     + "::" FNAME " at " + CASADI_WHERE + ":\n" + std::string(WHAT));
 
-#ifndef SWIG
   // Implementations
   template<typename MatType>
   const Sparsity& GenericMatrix<MatType>::sparsity() const {
@@ -915,7 +916,6 @@ namespace casadi {
     return sparsity().is_scalar(scalar_and_dense);
   }
 
-#endif // SWIG
 
   template<typename MatType>
   std::vector<MatType> GenericMatrix<MatType>::sym(const std::string& name,

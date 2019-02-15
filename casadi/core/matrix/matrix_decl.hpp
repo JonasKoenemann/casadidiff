@@ -1,23 +1,28 @@
 /*
- *    This file is part of CasADi.
+ *    This program is a derivative work of CasADi.
+ *    The original program has been altered starting from February 15, 2019.
+ *    The license of this file was changed from LGPL to GPL on February 15, 2019.
+ *
+ *    Copyright (C) 2019 Jonas Koenemann
  *
  *    CasADi -- A symbolic framework for dynamic optimization.
  *    Copyright (C) 2010-2014 Joel Andersson, Joris Gillis, Moritz Diehl,
  *                            K.U. Leuven. All rights reserved.
  *    Copyright (C) 2011-2014 Greg Horn
  *
- *    CasADi is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public
  *    License as published by the Free Software Foundation; either
  *    version 3 of the License, or (at your option) any later version.
  *
- *    CasADi is distributed in the hope that it will be useful,
+ *    This program is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ *    General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with CasADi; if not, write to the Free Software
+ *    You should have received a copy of the GNU General Public
+ *    License and GNU Lesser General Public License along with this program;
+ *    if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
@@ -39,11 +44,6 @@
 #include <vector>
 
 namespace casadi {
-
-  /** \brief Empty Base
-      This class is extended in SWIG.
-  */
-  struct CASADI_EXPORT MatrixCommon {};
 
 /// \cond CLUTTER
   ///@{
@@ -93,15 +93,12 @@ namespace casadi {
     /// Copy constructor
     Matrix(const Matrix<Scalar>& m);
 
-#ifndef SWIG
     /// Assignment (normal)
     Matrix<Scalar>& operator=(const Matrix<Scalar>& m);
-#endif // SWIG
 
     /** \brief Create a sparse matrix with all structural zeros */
     Matrix(casadi_int nrow, casadi_int ncol);
 
-#ifndef SWIG
     /** \brief Create a sparse matrix with all structural zeros */
     explicit Matrix(const std::pair<casadi_int, casadi_int>& rc);
 
@@ -110,7 +107,6 @@ namespace casadi {
 
     /** \brief  Const access functions of the node */
     const std::vector<Scalar>* operator->() const { return &nonzeros_;}
-#endif // SWIG
 
     /** \brief Create a sparse matrix from a sparsity pattern.
         Same as Matrix::ones(sparsity)
@@ -120,15 +116,9 @@ namespace casadi {
     /** \brief Construct matrix with a given sparsity and nonzeros */
     Matrix(const Sparsity& sp, const Matrix<Scalar>& d);
 
-#ifdef WITH_DEPRECATED_FEATURES
-    /** \brief [DEPRECATED] Correctness is checked during construction */
-    void sanity_check(bool complete=false) const {}
-#endif // WITH_DEPRECATED_FEATURES
-
     /// This constructor enables implicit type conversion from a numeric type
     Matrix(double val);
 
-#if !(defined(SWIG) && defined(SWIGMATLAB))
     /// Dense matrix constructor with data given as vector of vectors
     explicit Matrix(const std::vector< std::vector<double> >& m);
 
@@ -139,7 +129,6 @@ namespace casadi {
         auto x_it = x.begin();
         for (auto&& d : nonzeros_) d = static_cast<Scalar>(*x_it++);
     }
-#endif
 
     /** \brief Create a matrix from another matrix with a different entry type
      *  Assumes that the scalar conversion is valid.
@@ -150,7 +139,6 @@ namespace casadi {
       for (auto&& d : nonzeros_) d = static_cast<Scalar>(*x_it++);
     }
 
-#ifndef SWIG
     /// Construct from a vector
     Matrix(const std::vector<Scalar>& x);
 
@@ -191,7 +179,6 @@ namespace casadi {
     using B::vertsplit;
     using B::diagsplit;
     using B::mtimes;
-#endif // SWIG
 
     /// Returns true if the matrix has a non-zero at location rr, cc
     bool has_nz(casadi_int rr, casadi_int cc) const { return sparsity().has_nz(rr, cc); }
@@ -263,7 +250,6 @@ namespace casadi {
     ///@}
     /// \endcond
 
-#ifndef SWIG
     /// \cond CLUTTER
     ///@{
     /// Functions called by friend functions defined for GenericExpression
@@ -456,14 +442,12 @@ namespace casadi {
     static Matrix<Scalar> diagcat(const std::vector< Matrix<Scalar> > &A);
     ///@}
     /// \endcond
-#endif // SWIG
 
     Matrix<Scalar> printme(const Matrix<Scalar>& y) const;
 
     /// Transpose the matrix
     Matrix<Scalar> T() const;
 
-#if !defined(SWIG) || defined(DOXYGEN)
 /**
 \ingroup expression_tools
 @{
@@ -783,7 +767,6 @@ namespace casadi {
       return Matrix<Scalar>::evalf(expr);
     }
 /** @} */
-#endif
 
     /** \brief Set or reset the depth to which equalities are being checked for simplifications */
     static void set_max_depth(casadi_int eq_depth=1);
@@ -822,7 +805,6 @@ namespace casadi {
     /// Print sparse matrix style
     void print_sparse(std::ostream &stream, bool truncate=true) const;
 
-#ifndef SWIG
     /// Print scalar
     static void print_scalar(std::ostream &stream, const Scalar& e);
 
@@ -837,7 +819,6 @@ namespace casadi {
     /// Print dense matrix-stype
     static void print_dense(std::ostream &stream,  const Sparsity& sp, const Scalar* nonzeros,
       bool truncate=true);
-#endif
 
     void clear();
     void resize(casadi_int nrow, casadi_int ncol);
@@ -864,7 +845,6 @@ namespace casadi {
                   const std::vector<casadi_int>& rr, const std::vector<casadi_int>& cc,
                   bool ind1=false);
 
-#ifndef SWIG
     ///@{
     /// Access the non-zero elements
     std::vector<Scalar>& nonzeros() { return nonzeros_;}
@@ -881,8 +861,6 @@ namespace casadi {
 
     /// Const access the sparsity - reference to data member
     const Sparsity& sparsity() const { return sparsity_; }
-
-#endif // SWIG
 
     /** \brief Get an owning reference to the sparsity pattern */
     Sparsity get_sparsity() const { return sparsity();}
@@ -1002,11 +980,9 @@ namespace casadi {
     /** \brief Get all elements */
     std::vector<Scalar> get_elements() const { return static_cast< std::vector<Scalar> >(*this);}
 
-#ifndef SWIG
     /** \brief Get all nonzeros */
     template<typename A>
     std::vector<A> get_nonzeros() const;
-#endif // SWIG
 
     /** \brief Type conversion to double */
     explicit operator double() const;
@@ -1014,11 +990,9 @@ namespace casadi {
     /** \brief Type conversion to casadi_int */
     explicit operator casadi_int() const;
 
-#ifndef SWIG
     /** \brief Type conversion to a vector */
     template<typename A>
     explicit operator std::vector<A>() const;
-#endif // SWIG
 
     /** \brief Get name (only if symbolic scalar) */
     std::string name() const;
@@ -1075,10 +1049,9 @@ namespace casadi {
 
     /** Obtain information about sparsity */
     Dict info() const;
-    #ifndef SWIG
-        /** \brief Serialize an object */
-        void serialize(std::ostream &stream) const;
-    #endif
+
+    /** \brief Serialize an object */
+    void serialize(std::ostream &stream) const;
 
     /** \brief Serialize */
     std::string serialize() const;
@@ -1098,7 +1071,7 @@ namespace casadi {
     /** Export numerical matrix to file
     *
     * Supported formats:
-    * 
+    *
     * \verbatim
     *   - .mtx   Matrix Market (sparse)
     *   - .txt   Ascii full precision representation (sparse)
@@ -1108,18 +1081,16 @@ namespace casadi {
     *            Structural zeros represented by 00
     *            Does not scale well for large sparse matrices
     * \endverbatim
-    * 
+    *
     */
     void to_file(const std::string& filename, const std::string& format="") const;
-#ifndef SWIG
+
     static void to_file(const std::string& filename, const Sparsity& sp,
       const Scalar* nonzeros, const std::string& format="");
-#endif
 
     static Matrix<double> from_file(const std::string& filename, const std::string& format_hint="");
     //@}
 
-#ifndef SWIG
     /// Sparse matrix with a given sparsity with all values same
     Matrix(const Sparsity& sp, const Scalar& val, bool dummy);
 
@@ -1144,8 +1115,6 @@ namespace casadi {
 
     /// Random number generator
     static std::default_random_engine rng_;
-
-#endif // SWIG
   };
 
   /// Implementation of Matrix::get_nonzeros (in public API)
