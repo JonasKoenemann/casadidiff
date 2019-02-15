@@ -40,10 +40,6 @@
 #include "generic_type.hpp"
 
 namespace casadi {
-  /** \brief Empty Base
-      This class is extended in SWIG.
-   */
-  struct CASADI_EXPORT GenericMatrixCommon {};
 
   /** \brief Matrix base class
 
@@ -75,8 +71,7 @@ namespace casadi {
   */
   template<typename MatType>
   class GenericMatrix
-    : public GenericMatrixCommon,
-      public SWIG_IF_ELSE(SparsityInterfaceCommon, SparsityInterface<MatType>) {
+    : SparsityInterface<MatType> {
     using SparsityInterface<MatType>::self;
   public:
 
