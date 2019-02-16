@@ -56,16 +56,35 @@ namespace casadi {
       \author Joel Andersson
       \date 2010-2014
   */
-  class CASADI_EXPORT SXElem : public GenericExpression<SXElem>
-                                {
-    friend class SXNode;
-    friend class BinarySXNode;
-    friend class Matrix<SXElem>;
+  class CASADI_EXPORT SXElem : public GenericExpression<SXElem> {
 
   private:
+    /// Pointer to node
+    SXNode* node;
     Printable<SXElem> display;
 
   public:
+
+    /** \brief Create a symbolic primitive
+         \param name Name of the symbolic primitive
+
+        This is the name that will be used by the "operator<<" and "str" methods.
+        The name is not used as identifier; you may construct distinct
+        SXElem objects with non-unique names.
+    */
+    static SXElem sym(const std::string& name);
+
+    /// \cond INTERNAL
+    /// Create an object given a node
+    static SXElem create(SXNode* node);
+    /// \endcond
+
+    /// Type name
+    static std::string type_name() {return "SXElem";}
+
+    /** \brief  Perform operations by ID */
+    static SXElem binary(casadi_int op, const SXElem& x, const SXElem& y);
+    static SXElem unary(casadi_int op, const SXElem& x);
 
     /// \cond CLUTTER
     /** \brief Default constructor (not-a-number)
@@ -79,15 +98,6 @@ namespace casadi {
     */
     SXElem(double val);
 
-    /** \brief Create a symbolic primitive
-         \param name Name of the symbolic primitive
-
-        This is the name that will be used by the "operator<<" and "str" methods.
-        The name is not used as identifier; you may construct distinct
-        SXElem objects with non-unique names.
-    */
-    static SXElem sym(const std::string& name);
-
     /// \cond INTERNAL
     /// Create an expression from a node: extra dummy argument to avoid ambiguity for 0/NULL
     SXElem(SXNode* node, bool dummy);
@@ -99,11 +109,6 @@ namespace casadi {
     /// Destructor
     ~SXElem();
 
-    /// \cond INTERNAL
-    /// Create an object given a node
-    static SXElem create(SXNode* node);
-    /// \endcond
-
     /// Assignment
     SXElem& operator=(const SXElem& scalar);
     SXElem& operator=(double scalar); // needed since otherwise both a = SXElem(double)
@@ -111,9 +116,6 @@ namespace casadi {
 
     /// Convert to a 1-by-1 Matrix
     operator Matrix<SXElem>() const;
-
-    /// Type name
-    static std::string type_name() {return "SXElem";}
 
     /// Print a description of the object
     void disp(std::ostream& stream, bool more=false) const;
@@ -127,10 +129,6 @@ namespace casadi {
     const SXNode* operator->() const;
     SXNode* operator->();
     /// \endcond
-
-    /** \brief  Perform operations by ID */
-    static SXElem binary(casadi_int op, const SXElem& x, const SXElem& y);
-    static SXElem unary(casadi_int op, const SXElem& x);
 
     /** \brief Check the truth value of this node
      * Introduced to catch bool(x) situations in python
@@ -225,9 +223,6 @@ namespace casadi {
     void serialize(SerializingStream& s) const;
 
     static SXElem deserialize(DeserializingStream& s);
-  private:
-    /// Pointer to node (SXElem is only a reference class)
-    SXNode* node;
   };
 
   template<>

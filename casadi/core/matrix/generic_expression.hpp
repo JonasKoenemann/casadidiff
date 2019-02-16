@@ -27,6 +27,9 @@
  *
  */
 
+ // history:
+ //   JK 2019/02/16: remove implementations to convert to interface
+
 
 #ifndef CASADI_GENERIC_EXPRESSION_HPP
 #define CASADI_GENERIC_EXPRESSION_HPP
