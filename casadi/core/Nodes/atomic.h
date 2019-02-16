@@ -28,66 +28,120 @@
  */
 
 
-#ifndef CASADI_SX_ATOMIC_H_
-#define CASADI_SX_ATOMIC_H_
+#ifndef ADLIB_ATOMIC_H_
+#define ADLIB_ATOMIC_H_
 
 
-namespace casadi
+namespace adlib
 {
 
 
 typedef std::vector<Expression> ExpressionList;
 
-class Matrix : Expression
-{
+
+class Expression {
+  const &T eval_fcn(const Assignment &a);
+}
+
+class Matrix : Expression {
   ExpressionList fcn();
   ExpressionList der();
 }
 
-typedef Expression T;
-typedef ExpressionList TL;
-
-class AtomicOperation : Expression
+class DoubleExpression : double, Expression
 {
-  Expression(const ExpressionList &inputs);
-  virtual const &T fcn()=0;
-  virtual const &T der()=0;
+  DoubleExpression(double v) {
+    this = v;
+  }
+  const Expression& fcn() {
+    return this;
+  }
 
-  const &T evalf()
-  {
+  const Expression& der() {
+    //return DoubleExpression(1); return DoubleExpression(0); ?
+  }
+}
+
+class SymPrimitive : Expression
+{
+  const Expression& eval_fcn(const Assignment& a) {
+    return a.get(this);
+  }
+}
+
+// Operation with multiple inputs and multiple outputs
+class MimoOperation : Expression
+{
+  AtomicOperation(const Expression& inputs);
+
+  virtual const Expression& fcn()=0;
+  virtual const Expression& der()=0;
+
+  const Expression& eval_fcn(const Assignment& a) {
     evaluatedList = {};
-    for in : inputs
-    {
-      evaluatedList.append(in.eval());
+    for in : inputs {
+      evaluatedList.append(in.eval_fcn(a));
     }
     return this->fcn(evaluatedList);
   }
 
-  const &T evald();
-
-  ExpressionList inputs;
+  private const Expression& eval_der();
+  private ExpressionList inputs;
 }
 
+// Operation with single input and a single output
+class UnaryOperation : Expression
+{
+  const Expression& eval_fcn(const Assignment& a) {
+    in = input.eval_fcn(a);
+    return this->fcn(in);
+  }
+  private Expression input;
+}
+
+// Operation with two inputs and a asingle output
+class BinaryOperation : Expression
+{
+  const Expression& eval_fcn(const Assignment& a) {
+    in1 = input.eval_fcn(a);
+    in2 = input.eval_fcn(a);
+    return this->fcn(in1, in2);
+  }
+  private Expression input1;
+  private Expression input2;
+}
+
+typedef Expression T;
+
 // operator functions
-const &T assign(const T &x, const T &y) { return Assign(x,y); }
+const &T assign(const T &x) { return Assign(x); }
 const &T add(const T &x, const T &y) { return Add(x,y); }
 const &T sub(const T &x, const T &y) { return Sub(x,y); }
 
-// Assignment
-class Assign : AtomicOperation
+
+// unary operations
+class Assign : UnaryOperation
 {
-  const &T fcn(const T& x) { return {x}; }
-  const &T der(const T& x, const T& f) { return {1}; }
+  Assign(const T& x) { input = x; }
+  static const T& fcn(const T& x) { return x; }
+  static const T& der(const T& x, const T& f) { return {1}; }
 }
 
-/// Addition
-class Add : AtomicOperation
+// binary operations
+class Add : BinaryOperation
 {
-  void fcn(const T& x, const T& y, T& f) { f = x+y; }
-  void der(const T& x, const T& y, const T& f, T* d) { d[0]=d[1]=1; }
+  Add(const T& x, const T& y) { input1 = x; input2 = y; }
+  static const T& fcn(const T& x, const T& y) { return  x+y; }
+  static const T& der(const T& x, const T& y, const T& f) { {1,1}; }
 };
 
-/// Subtraction
+
+
+
+
+
+
+// TODO: complete operations
 class Sub : Atomic
 {
   void fcn(const T& x, const T& y, T& f) { f = x-y;}
@@ -403,5 +457,5 @@ class Assign : Atomic
   void der(const T& x, const T& y, const T& f, T* d) { d[0] = 1; d[1] = 0; }
 };
 
-} // namespace casadi
-#endif // CASADI_SX_ATOMIC_H_
+} // namespace adlib
+#endif // ADLIB_ATOMIC_H_
