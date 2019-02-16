@@ -35,28 +35,60 @@
 namespace casadi
 {
 
-class Atomic : Node
+
+typedef std::vector<Expression> ExpressionList;
+
+class Matrix : Expression
 {
-  void fcn(const T& x, T& f);
-  void der(const T& x, const T& f, T* d);
+  ExpressionList fcn();
+  ExpressionList der();
 }
 
-// Assignment
-class Assign : Atomic
+typedef Expression T;
+typedef ExpressionList TL;
+
+class AtomicOperation : Expression
 {
-  void fcn(const T& x, T& f) { f = x;}
-  void der(const T& x, const T& f, T* d) { d[0] = 1; }
+  Expression(const ExpressionList &inputs);
+  virtual const &T fcn()=0;
+  virtual const &T der()=0;
+
+  const &T evalf()
+  {
+    evaluatedList = {};
+    for in : inputs
+    {
+      evaluatedList.append(in.eval());
+    }
+    return this->fcn(evaluatedList);
+  }
+
+  const &T evald();
+
+  ExpressionList inputs;
+}
+
+// operator functions
+const &T assign(const T &x, const T &y) { return Assign(x,y); }
+const &T add(const T &x, const T &y) { return Add(x,y); }
+const &T sub(const T &x, const T &y) { return Sub(x,y); }
+
+// Assignment
+class Assign : AtomicOperation
+{
+  const &T fcn(const T& x) { return {x}; }
+  const &T der(const T& x, const T& f) { return {1}; }
 }
 
 /// Addition
-class Assign : Atomic
+class Add : AtomicOperation
 {
   void fcn(const T& x, const T& y, T& f) { f = x+y; }
   void der(const T& x, const T& y, const T& f, T* d) { d[0]=d[1]=1; }
 };
 
 /// Subtraction
-class Assign : Atomic
+class Sub : Atomic
 {
   void fcn(const T& x, const T& y, T& f) { f = x-y;}
   void der(const T& x, const T& y, const T& f, T* d) { d[0]=1; d[1]=-1; }

@@ -81,9 +81,10 @@ namespace casadi {
   template<typename Scalar>
   class CASADI_EXPORT Matrix :
     public GenericExpression<Matrix<Scalar> >,
-    public GenericMatrix<Matrix<Scalar> >,
-    public SWIG_IF_ELSE(PrintableCommon, Printable<Matrix<Scalar> >) {
+    public GenericMatrix<Matrix<Scalar> ) {
   public:
+
+    Printable<Matrix<Scalar> > display;
 
     /** \brief  constructors */
     /// empty 0-by-0 matrix constructor
