@@ -1,14 +1,6 @@
 /*
- *    This program is a derivative work of CasADi.
- *    The original program has been altered starting from February 15, 2019.
- *    The license of this file was changed from LGPL to GPL on February 15, 2019.
  *
  *    Copyright (C) 2019 Jonas Koenemann
- *
- *    CasADi -- A symbolic framework for dynamic optimization.
- *    Copyright (C) 2010-2014 Joel Andersson, Joris Gillis, Moritz Diehl,
- *                            K.U. Leuven. All rights reserved.
- *    Copyright (C) 2011-2014 Greg Horn
  *
  *    This program is free software; you can redistribute it and/or
  *    modify it under the terms of the GNU General Public
@@ -21,22 +13,34 @@
  *    General Public License for more details.
  *
  *    You should have received a copy of the GNU General Public
- *    License and GNU Lesser General Public License along with this program;
+ *    License along with this program;
  *    if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
 
 
-#ifndef CASADI_MATRIX_FWD_HPP
-#define CASADI_MATRIX_FWD_HPP
+#ifndef CASADI_SX_NODES_H_
+#define CASADI_SX_NODES_H_
 
-#include "casadi_misc.hpp"
+
+/// \cond INTERNAL
 
 namespace casadi {
-  template<typename Scalar>
-  class Matrix;
+
+/** \brief Represents a basic unary operation on an SXElem node
+  \author Joel Andersson
+  \date 2012
+*/
+class SxNode < Node {
+}
+
+class PlusNode :  SxNode
+{
+  PlusNode(const Symbolic &a, const Symbolic &b);
+  int PlusNode::eval(const double** arg, double** res, casadi_int* iw, double* w) const;
+
+}
 
 } // namespace casadi
-
-#endif // CASADI_MATRIX_FWD_HPP
+#endif // CASADI_SX_NODES_H_

@@ -53,18 +53,21 @@ namespace casadi {
 
     ///@{
     /** \brief  check properties of a node */
-    virtual bool is_constant() const { return false; }
-    virtual bool is_integer() const { return false; }
-    virtual bool is_symbolic() const { return false; }
-    virtual bool is_zero() const { return false; }
-    virtual bool is_op(casadi_int op) const { return false; }
-    virtual bool is_almost_zero(double tol) const { return false; }
-    virtual bool is_one() const { return false; }
-    virtual bool is_minus_one() const { return false; }
-    virtual bool is_nan() const { return false; }
-    virtual bool is_inf() const { return false; }
-    virtual bool is_minus_inf() const { return false; }
+    virtual bool is_constant() const = 0;
+    virtual bool is_integer() const = 0;
+    virtual bool is_symbolic() const = 0;
+    virtual bool is_zero() const = 0;
+    virtual bool is_op(casadi_int op) const = 0;
+    virtual bool is_almost_zero(double tol) const = 0;
+    virtual bool is_one() const = 0;
+    virtual bool is_minus_one() const = 0;
+    virtual bool is_nan() const = 0;
+    virtual bool is_inf() const = 0;
+    virtual bool is_minus_inf() const = 0;
     ///@}
+
+    // get the name
+    virtual const std::string& name() const;
 
     ///@{
     /** \brief  Get value of a constant node */
@@ -72,14 +75,13 @@ namespace casadi {
     virtual casadi_int to_int() const;  // only works for integer nodes
     ///@}
 
-    // get the name
-    virtual const std::string& name() const;
+
 
     /** \brief Get type name */
-    virtual std::string class_name() const = 0;
+    virtual std::string class_name() const ;
 
     /** \brief get the operation */
-    virtual casadi_int op() const=0;
+    virtual casadi_int op() const;
 
     /** \brief Check if two nodes are equivalent up to a given depth */
     virtual bool is_equal(const SXNode* node, casadi_int depth) const;
