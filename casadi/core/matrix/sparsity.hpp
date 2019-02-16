@@ -1,24 +1,28 @@
 /*
- *    This file is part of CasADi.
+ *    This program is a derivative work of CasADi.
+ *    The original program has been altered starting from February 15, 2019.
+ *    The license of this file was changed from LGPL to GPL on February 16, 2019.
+ *
+ *    Copyright (C) 2019 Jonas Koenemann
  *
  *    CasADi -- A symbolic framework for dynamic optimization.
  *    Copyright (C) 2010-2014 Joel Andersson, Joris Gillis, Moritz Diehl,
  *                            K.U. Leuven. All rights reserved.
  *    Copyright (C) 2011-2014 Greg Horn
- *    Copyright (C) 2005-2013 Timothy A. Davis
  *
- *    CasADi is free software; you can redistribute it and/or
- *    modify it under the terms of the GNU Lesser General Public
+ *    This program is free software; you can redistribute it and/or
+ *    modify it under the terms of the GNU General Public
  *    License as published by the Free Software Foundation; either
  *    version 3 of the License, or (at your option) any later version.
  *
- *    CasADi is distributed in the hope that it will be useful,
+ *    This program is distributed in the hope that it will be useful,
  *    but WITHOUT ANY WARRANTY; without even the implied warranty of
  *    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *    Lesser General Public License for more details.
+ *    General Public License for more details.
  *
- *    You should have received a copy of the GNU Lesser General Public
- *    License along with CasADi; if not, write to the Free Software
+ *    You should have received a copy of the GNU General Public
+ *    License and GNU Lesser General Public License along with this program;
+ *    if not, write to the Free Software
  *    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  */
@@ -43,7 +47,6 @@ namespace casadi {
   class SerializingStream;
   class DeserializingStream;
 
-  #ifndef SWIG
     /** \brief Compact representation of a sparsity pattern */
     struct CASADI_EXPORT SparsityStruct {
       casadi_int nrow;
@@ -51,7 +54,6 @@ namespace casadi {
       const casadi_int* colind;
       const casadi_int* row;
     };
-  #endif // SWIG
 
   /** \brief General sparsity class
    *
@@ -90,11 +92,13 @@ namespace casadi {
    * \author Joel Andersson
    * \date 2010-2015
    */
-  class CASADI_EXPORT Sparsity
-    : public SharedObject,
-      public SWIG_IF_ELSE(SparsityInterfaceCommon, SparsityInterface<Sparsity>),
-      public SWIG_IF_ELSE(PrintableCommon, Printable<Sparsity>) {
+  class Sparsity
+      SparsityInterface<Sparsity>, {
   public:
+
+    SharedObject so;
+    Printable<Sparsity> display;
+
 
     /// Default constructor
     explicit Sparsity(casadi_int dummy=0);
@@ -110,7 +114,6 @@ namespace casadi {
     /** \brief Create a sparse matrix with all structural zeros */
     explicit Sparsity(const std::pair<casadi_int, casadi_int>& rc);
 
-#ifndef SWIG
     /// Construct from sparsity pattern vectors given in compressed column storage format
     Sparsity(casadi_int nrow, casadi_int ncol, const casadi_int* colind, const casadi_int* row,
             bool order_rows=false);
@@ -128,7 +131,6 @@ namespace casadi {
     using B::mtimes;
 
     SparsityInternal* get() const;
-#endif
 
     /** \brief Create a scalar sparsity pattern **/
     ///@{
@@ -215,16 +217,8 @@ namespace casadi {
      **/
     ///@{
     static Sparsity compressed(const std::vector<casadi_int>& v, bool order_rows=false);
-#ifndef SWIG
     static Sparsity compressed(const casadi_int* v, bool order_rows=false);
-#endif // SWIG
     ///@}
-
-#ifdef WITH_DEPRECATED_FEATURES
-    /** \brief [DEPRECATED] Correctness of sparsity patterns are checked during
-              construction */
-    void sanity_check(bool complete=false) const {}
-#endif // WITH_DEPRECATED_FEATURES
 
     /** Get the diagonal of the matrix/create a diagonal matrix
         (mapping will contain the nonzero mapping)
@@ -236,22 +230,19 @@ namespace casadi {
     /// Compress a sparsity pattern
     std::vector<casadi_int> compress() const;
 
-#ifndef SWIG
     /// Access a member function or object
     const SparsityInternal* operator->() const;
 
     /// Reference to internal structure
     const SparsityInternal& operator*() const;
-#endif // SWIG
+
     /// \name Check if two sparsity patterns are identical
     /// @{
     bool is_equal(const Sparsity& y) const;
     bool is_equal(casadi_int nrow, casadi_int ncol, const std::vector<casadi_int>& colind,
                  const std::vector<casadi_int>& row) const;
-#ifndef SWIG
     bool is_equal(casadi_int nrow, casadi_int ncol,
                   const casadi_int* colind, const casadi_int* row) const;
-#endif // SWIG
 
     bool operator==(const Sparsity& y) const { return is_equal(y);}
     /// @}
@@ -262,7 +253,6 @@ namespace casadi {
     /// Check if pattern is horizontal repeat of another
     bool is_stacked(const Sparsity& y, casadi_int n) const;
 
-#ifndef SWIG
     /** \brief Implicit or explicit type conversion to C representation
         In the C runtime, sparsity patterns are represented as a "const casadi_int*".
         This enables using the C runtime functions using a natural syntax.
@@ -274,7 +264,6 @@ namespace casadi {
 
     /** \brief Implicit or explicit type conversion to C representation */
     operator SparsityStruct() const;
-#endif // SWIG
 
     /// \name Size and element counting
     /// @{
@@ -350,10 +339,8 @@ namespace casadi {
 
     static Sparsity from_file(const std::string& filename, const std::string& format_hint="");
 
-#ifndef SWIG
     /** \brief Serialize */
     void serialize(std::ostream &stream) const;
-#endif
 
     /** \brief Serialize */
     std::string serialize() const;
@@ -370,14 +357,12 @@ namespace casadi {
     /** \brief Deserialize */
     static Sparsity deserialize(DeserializingStream& s);
 
-#ifndef SWIG
     /** \brief Get a reference to row-vector,
      * containing rows for all non-zero elements (see class description) */
     const casadi_int* row() const;
 
     /** \brief Get a reference to the colindex of all column element (see class description) */
     const casadi_int* colind() const;
-#endif
 
     /** \brief Get the row for each non-zero entry
         Together with the column-vector, this vector gives the sparsity of the matrix in
@@ -487,18 +472,14 @@ namespace casadi {
         if the first argument is nonzero,
         the second bit indicates if the second argument is nonzero (note that none of,
         one of or both of the arguments can be nonzero) */
-#ifndef SWIG
     Sparsity combine(const Sparsity& y, bool f0x_is_zero, bool function0_is_zero,
                             std::vector<unsigned char>& mapping) const;
-#endif // SWIG
     Sparsity combine(const Sparsity& y, bool f0x_is_zero, bool function0_is_zero) const;
     /// @}
 
     /// @{
     /** \brief Union of two sparsity patterns */
-#ifndef SWIG
     Sparsity unite(const Sparsity& y, std::vector<unsigned char>& mapping) const;
-#endif // SWIG
     Sparsity unite(const Sparsity& y) const;
     Sparsity operator+(const Sparsity& b) const;
     /// @}
@@ -509,10 +490,8 @@ namespace casadi {
         number of non-zero elements
         The value is 1 if the non-zero comes from the first (i.e. this) object, 2 if it is from
         the second and 3 (i.e. 1 | 2) if from both */
-#ifndef SWIG
     Sparsity intersect(const Sparsity& y,
                        std::vector<unsigned char>& mapping) const;
-#endif // SWIG
     Sparsity intersect(const Sparsity& y) const;
     Sparsity operator*(const Sparsity& b) const;
     /// @}
@@ -520,7 +499,6 @@ namespace casadi {
     /// Take the inverse of a sparsity pattern; flip zeros and non-zeros
     Sparsity pattern_inverse() const;
 
-#ifndef SWIG
     /** \brief Propagate sparsity using 0-1 logic through a matrix product,
      * no memory allocation: <tt>z = mul(x, y)</tt> with work vector
      * Forward mode.
@@ -566,7 +544,6 @@ namespace casadi {
 
     static Sparsity sum2(const Sparsity &x);
     static Sparsity sum1(const Sparsity &x);
-#endif //SWIG
 
     /** \brief Enlarge matrix
         Make the matrix larger by inserting empty rows and columns, keeping the existing non-zeros
@@ -652,7 +629,6 @@ namespace casadi {
     */
     void removeDuplicates(std::vector<casadi_int>& SWIG_INOUT(mapping));
 
-#ifndef SWIG
     typedef std::unordered_multimap<std::size_t, WeakRef> CachingMap;
 
     /// Cached sparsity patterns
@@ -666,8 +642,6 @@ namespace casadi {
 
     /// Empty zero-by-zero
     static const Sparsity& getEmpty();
-
-#endif //SWIG
 
     /** \brief Calculate the elimination tree
         See Direct Methods for Sparse Linear Systems by Davis (2006).
@@ -770,11 +744,9 @@ namespace casadi {
     */
     std::vector<casadi_int> amd() const;
 
-#ifndef SWIG
     /** \brief Propagate sparsity through a linear solve
      */
     void spsolve(bvec_t* X, const bvec_t* B, bool tr) const;
-#endif // SWIG
 
     /** \brief Get the location of all non-zero elements as they would appear in a Dense matrix
         A : DenseMatrix  4 x 3
@@ -787,10 +759,8 @@ namespace casadi {
     */
     std::vector<casadi_int> find(bool ind1=SWIG_IND1) const;
 
-#ifndef SWIG
     /// Get the location of all nonzero elements (inplace version)
     void find(std::vector<casadi_int>& loc, bool ind1=false) const;
-#endif // SWIG
 
     /** \brief Perform a unidirectional coloring: A greedy distance-2 coloring algorithm
         (Algorithm 3.1 in A. H. GEBREMEDHIN, F. MANNE, A. POTHEN) */
@@ -886,7 +856,6 @@ namespace casadi {
     static Sparsity kkt(const Sparsity& H, const Sparsity& J,
                         bool with_x_diag=true, bool with_lam_g_diag=true);
 
-#ifndef SWIG
     /** \brief Assign the nonzero entries of one sparsity pattern to the nonzero
      * entries of another sparsity pattern */
     template<typename T>
@@ -915,7 +884,6 @@ namespace casadi {
     void assign_cached(casadi_int nrow, casadi_int ncol,
                         const casadi_int* colind, const casadi_int* row, bool order_rows=false);
 
-#endif //SWIG
   };
 
   /** \brief Hash value of an integer */
@@ -947,7 +915,6 @@ namespace casadi {
                                           const casadi_int* colind,
                                           const casadi_int* row);
 
-#ifndef SWIG
   // Template instantiations
   template<typename DataType>
   void Sparsity::set(DataType* data, const DataType* val_data, const Sparsity& val_sp) const {
@@ -1199,13 +1166,6 @@ namespace casadi {
       }
     }
   }
-
-#endif //SWIG
-
-  ///@{
-  /// Readability typedefs
-  typedef std::map<std::string, Sparsity> SpDict;
-  ///@}
 
 } // namespace casadi
 

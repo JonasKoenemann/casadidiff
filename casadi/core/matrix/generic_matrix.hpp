@@ -70,9 +70,10 @@ namespace casadi {
       \date 2012
   */
   template<typename MatType>
-  class GenericMatrix
-    : SparsityInterface<MatType> {
-    using SparsityInterface<MatType>::self;
+  class GenericMatrix {
+
+  private:
+    SparsityInterface<MatType> sp;
   public:
 
     /** \brief Get the number of (structural) non-zero elements */

@@ -56,11 +56,15 @@ namespace casadi {
       \author Joel Andersson
       \date 2010-2014
   */
-  class CASADI_EXPORT SXElem : public GenericExpression<SXElem>,
-                               public Printable<SXElem> {
+  class CASADI_EXPORT SXElem : public GenericExpression<SXElem>
+                                {
     friend class SXNode;
     friend class BinarySXNode;
     friend class Matrix<SXElem>;
+
+  private:
+    Printable<SXElem> display;
+
   public:
 
     /// \cond CLUTTER

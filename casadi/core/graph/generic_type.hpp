@@ -65,8 +65,12 @@ namespace casadi {
       \date 2010
   */
   class CASADI_EXPORT GenericType
-    : Printable<GenericType>, public SharedObject
   {
+
+  private:
+    Printable<GenericType> display;
+    SharedObject so;
+
   public:
     /// C++ equivalent of Python's dict or MATLAB's struct
     typedef std::map<std::string, GenericType> Dict;

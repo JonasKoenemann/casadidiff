@@ -40,7 +40,10 @@
 
 namespace casadi {
 
-  class CASADI_EXPORT GenericTypeBase : public SharedObjectInternal {
+  class CASADI_EXPORT GenericTypeBase {
+
+  private:
+    SharedObjectInternal soi;
   public:
     virtual ~GenericTypeBase() {}
     virtual TypeID getType() const = 0;

@@ -67,9 +67,11 @@ namespace casadi {
   */
   class CASADI_EXPORT MX :
     public GenericExpression<MX>,
-    public Printable<MX>,
-    public GenericMatrix<MX>,
-    public SharedObject {
+    public GenericMatrix<MX> {
+
+  private:
+    Printable<MX> display;
+
   public:
     /** \brief Get type name */
     static std::string type_name() {return "MX";}
@@ -684,14 +686,6 @@ namespace casadi {
     static casadi_int eq_depth_;
   };
 
-
-  ///@{
-  /// Readability typedefs
-  typedef std::vector<MX> MXVector;
-  typedef std::initializer_list<MX> MXIList;
-  typedef std::vector<MXVector> MXVectorVector;
-  typedef std::map<std::string, MX> MXDict;
-  ///@}
 
 } // namespace casadi
 

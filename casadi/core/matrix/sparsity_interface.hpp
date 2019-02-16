@@ -45,7 +45,7 @@ namespace casadi {
       \date 2014
   */
   template<typename MatType>
-  class SparsityInterface : public SparsityInterfaceCommon {
+  class SparsityInterface {
   protected:
     // Helper functions
     inline const MatType& self() const { return static_cast<const MatType&>(*this); }

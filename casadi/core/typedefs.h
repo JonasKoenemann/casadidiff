@@ -30,6 +30,19 @@ namespace casadi
   typedef std::initializer_list<SX> SXIList;
   typedef std::vector<SXVector> SXVectorVector;
   typedef std::map<std::string, SX> SXDict;
+
+  typedef std::vector<MX> MXVector;
+  typedef std::initializer_list<MX> MXIList;
+  typedef std::vector<MXVector> MXVectorVector;
+  typedef std::map<std::string, MX> MXDict;
+
+  typedef Matrix<double> DM;
+  typedef std::vector<DM> DMVector;
+  typedef std::vector<DMVector> DMVectorVector;
+  typedef std::map<std::string, DM> DMDict;
+
+  typedef std::map<std::string, Sparsity> SpDict;
+
 }
 
 #endif // CASADI_TYPEDEFS_H
