@@ -24,7 +24,12 @@
 
 namespace casadi
 {
-
+  class SXElem;
+  typedef Matrix<SXElem> SX;
+  typedef std::vector<SX> SXVector;
+  typedef std::initializer_list<SX> SXIList;
+  typedef std::vector<SXVector> SXVectorVector;
+  typedef std::map<std::string, SX> SXDict;
 }
 
 #endif // CASADI_TYPEDEFS_H

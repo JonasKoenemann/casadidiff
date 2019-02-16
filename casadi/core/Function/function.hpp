@@ -192,13 +192,11 @@ namespace casadi {
     ///@}
 
     /// \cond INTERNAL
-#ifndef SWIG
     /** \brief  Create from node */
     static Function create(FunctionInternal* node);
 
     /** \brief  Create from node and initialize */
     static Function create(FunctionInternal* node, const Dict& opts);
-#endif // SWIG
     /// \endcond
 
     /** \brief Get the number of function inputs */
@@ -712,25 +710,20 @@ namespace casadi {
     void export_code(const std::string& lang,
       const std::string &fname, const Dict& options=Dict()) const;
 
-#ifndef SWIG
     /** \brief Serialize */
     void serialize(std::ostream &stream, const Dict& opts=Dict()) const;
 
     /** \brief Serialize an object */
     void serialize(SerializingStream &s) const;
-#endif
 
     /** \brief Serialize */
     std::string serialize(const Dict& opts=Dict()) const;
     void save(const std::string &fname, const Dict& opts=Dict()) const;
 
     std::string export_code(const std::string& lang, const Dict& options=Dict()) const;
-#ifndef SWIG
     void export_code(const std::string& lang,
       std::ostream &stream, const Dict& options=Dict()) const;
-#endif // SWIG
     ///@}
-#ifndef SWIG
     /// \cond INTERNAL
     /// Get a const pointer to the node
     FunctionInternal* get() const;
@@ -749,7 +742,6 @@ namespace casadi {
     /// Check if a particular cast is allowed
     static bool test_cast(const SharedObjectInternal* ptr);
     /// \endcond
-#endif // SWIG
 
     /// Get all statistics obtained at the end of the last evaluate call
     Dict stats(casadi_int mem=0) const;
@@ -878,7 +870,6 @@ namespace casadi {
     /** \brief Get required length of w field */
     size_t sz_w() const;
 
-#ifndef SWIG
     /** \brief Get number of temporary variables needed */
     void sz_work(size_t& sz_arg, size_t& sz_res, size_t& sz_iw, size_t& sz_w) const;
 
@@ -897,7 +888,6 @@ namespace casadi {
     template<typename M>
     void call_gen(const std::map<std::string, M>& arg, std::map<std::string, M>& res,
                bool always_inline, bool never_inline) const;
-#endif // SWIG
     /// \endcond
 
     /** \brief Name of the function */
@@ -950,10 +940,8 @@ namespace casadi {
     /// Release a memory object
     void release(casadi_int mem) const;
 
-#ifndef SWIG
     /// Get memory object
     void* memory(casadi_int ind) const;
-#endif // SWIG
 
     // Get a list of all functions
     std::vector<std::string> get_function() const;
@@ -967,7 +955,6 @@ namespace casadi {
     /** Obtain information about function */
     Dict info() const;
 
-#ifndef SWIG
     protected:
     ///@{
     /** \brief Called by constructors */
@@ -1001,11 +988,6 @@ namespace casadi {
     // operator()(const double** arg, double** res, casadi_int* iw, double* w, casadi_int mem)?
     static thread_local casadi_int call_depth_;
 #endif
-
-
-#endif // SWIG
-
-
 
   };
 
